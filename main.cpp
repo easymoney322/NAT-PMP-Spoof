@@ -8,7 +8,7 @@
 #include <vector>
 #include <bitset>
 #include <climits>
-#include <iomanip>
+
 #include <iostream>
 #include "SystemUtils.h"
 #include "Packet.h"
@@ -23,10 +23,9 @@
 #include "PcapLiveDeviceList.h"
 #include <Windows.h>
 #include <Iphlpapi.h>
-#include <format>
-#include "SystemUtils.h"
 #include "stdlib.h"
-
+#include "NetFunctions.hpp"
+#include "NetFormating.hpp"
 
 #pragma comment(lib, "wpcap" )
 #pragma comment(lib, "iphlpapi.lib")
@@ -66,18 +65,11 @@ std::vector<WinDev> DEVS; //Vector, containing all our interfaces
 std::string VecToString(std::vector <uint8_t> inputvec);
 std::string VecToStringWithDelimiters(std::vector <uint8_t> inputvec, const char delimiter);
 std::string MacVecToStringWithDelimiters(std::vector <uint8_t> inputvec, const char delimiter);
-std::vector<std::string> split(std::string s, const char delimiter);
-uint32_t SchizoConverter(std::string inputstring);
 WinDev FindAppropriateDevice(const std::vector <WinDev> inputvec, const std::string DestIp);
-int MakeMeIpv4(uint32_t input, unsigned int& a, unsigned int& b, unsigned int& c, unsigned int& d);
-void PrintIPV4(const char* msg, uint32_t input);
 void getDevices();
-void PrintIPV42(const char* msg, uint32_t input);
-void PrintIPV43(const char* msg, uint32_t input);
 void sendarp(WinDev localstruct, std::string destinationv4, std::vector <uint8_t>& inputvec); //[IN] WinDev, [IN] std::string IPV4, [OUT] std::vector uint8_t
-void PrintMacFromVec(const std::vector <uint8_t> inputvec);
 uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev Out, bool lstcp, uint16_t lsinternalport, uint16_t lsexternalport, uint16_t lsGWlistenport, uint32_t mappingtime);
-const static auto MVTSWD = MacVecToStringWithDelimiters;
+
 
 int main()
 {
@@ -211,6 +203,7 @@ uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, 
     std::cout << "Wasn't able to allocate memory. Aborting..." << std::endl;
     return 323;
 }
+
 void getDevices()
 {
     PIP_ADAPTER_INFO AdapterInfo;
@@ -273,71 +266,6 @@ void getDevices()
     free(AdapterInfo);
 }
 
-std::vector<std::string> split(std::string s, const char delimiter)
-{
-    size_t pos_start = 0, pos_end;
-    std::string substr;
-    std::vector<std::string> res;
-    while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos)
-    {
-        substr = s.substr(pos_start, pos_end - pos_start);
-        pos_start = pos_end + 1;
-        res.push_back(substr);
-    }
-    res.push_back(s.substr(pos_start));
-    return res;
-}
-
-uint32_t SchizoConverter(std::string inputstring)
-{
-    std::vector<std::string> v = split(inputstring, '.');
-    uint32_t retval = 0;
-    for (int l = 0; l < v.size(); l++)
-    {
-        retval = (retval << 8) | std::stoi(v[l]);
-    }
-    return retval;
-}
-
-void PrintIPV4(const char* msg, uint32_t input) //Not an endianness independent code
-{
-    unsigned int d = input & 0xFF;
-    unsigned int c = (input >> 8) & 0xFF;
-    unsigned int b = (input >> 16) & 0xFF;
-    unsigned int a = (input >> 24) & 0xFF;
-    std::cout << msg << std::dec << a << "." << b << "." << c << "." << d << std::endl;
-}
-
-int MakeMeIpv4(uint32_t input, unsigned int& a, unsigned int& b, unsigned int& c, unsigned int& d)
-{
-    uint8_t* bytes = reinterpret_cast<uint8_t*>(&input);
-    d = static_cast <int>(bytes[0]);
-    c = static_cast <int>(bytes[1]);
-    b = static_cast <int>(bytes[2]);
-    a = static_cast <int>(bytes[3]);
-    return 0;
-}
-
-void PrintIPV42(const char* msg, uint32_t input)
-{
-    uint8_t* bytes = reinterpret_cast<uint8_t*>(&input);
-    unsigned int d = static_cast <int>(bytes[0]);
-    unsigned int c = static_cast <int>(bytes[1]);
-    unsigned int b = static_cast <int>(bytes[2]);
-    unsigned int a = static_cast <int>(bytes[3]);
-    std::cout << msg << std::dec << a << "." << b << "." << c << "." << d << std::endl;
-}
-
-void PrintIPV43(const char* msg, uint32_t input)
-{
-    uint8_t* cde = (uint8_t*)(&(input));
-    unsigned int d = *cde;
-    unsigned int c = *(cde + 1);
-    unsigned int b = *(cde + 2);
-    unsigned int a = *(cde + 3);
-    std::cout << msg << std::dec << a << "." << b << "." << c << "." << d << std::endl;
-}
-
 void sendarp(const WinDev localstruct, const std::string destinationv4, std::vector <uint8_t>& inputvec) //[IN] WinDev, [IN] std::string IPV4, [OUT] std::vector uint8_t
 {
     IPAddr SourceADR = inet_addr(localstruct.ipaddr.c_str());
@@ -394,16 +322,6 @@ void sendarp(const WinDev localstruct, const std::string destinationv4, std::vec
     }
 }
 
-void PrintMacFromVec(const std::vector <uint8_t> inputvec)
-{
-    unsigned int k = (inputvec.size() - 1);
-    for (unsigned int i = 0; i < k; i++)
-    {
-        std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)inputvec.at(i) << ":";
-    }
-    std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)inputvec.at(k) << std::endl;
-}
-
 WinDev FindAppropriateDevice(const std::vector <WinDev> inputvec, const std::string DestIp)
 {
     uint32_t reformatedDestIP = SchizoConverter(DestIp);
@@ -418,38 +336,3 @@ WinDev FindAppropriateDevice(const std::vector <WinDev> inputvec, const std::str
     return { "", "", {NULL},0,0,0,0,0 }; //We probably should use default GW if interface wasn't found
 }
 
-std::string VecToString(std::vector <uint8_t> inputvec)
-{
-    std::string retval;
-    for (int i = 0; i < inputvec.size(); i++)
-    {
-        retval += inputvec.at(i);
-
-    }
-    return retval;
-}
-
-std::string VecToStringWithDelimiters(std::vector <uint8_t> inputvec, const char delimiter)
-{
-    std::string retval;
-    for (int i = 0; i < (inputvec.size() - 1); i++)
-    {
-        retval += std::to_string(inputvec.at(i));
-        retval += delimiter;
-    }
-    retval += std::to_string(inputvec.at(inputvec.size() - 1));
-    return retval;
-}
-const auto VTSWD = VecToStringWithDelimiters;
-
-std::string MacVecToStringWithDelimiters(std::vector <uint8_t> inputvec, const char delimiter)
-{
-    std::string retval;
-    for (int i = 0; i < (inputvec.size() - 1); i++)
-    {
-        retval += std::format("{:x}", inputvec.at(i));
-        retval += delimiter;
-    }
-    retval += std::format("{:x}", inputvec.at(inputvec.size() - 1));
-    return retval;
-}

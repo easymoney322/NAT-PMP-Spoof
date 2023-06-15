@@ -4,6 +4,7 @@
 #include <format>
 #include <string>
 #include <vector>
+#include <bitset>
 
 int MakeMeIpv4(uint32_t input, unsigned int& a, unsigned int& b, unsigned int& c, unsigned int& d);
 uint32_t SchizoConverter(std::string inputstring);
@@ -16,9 +17,10 @@ void PrintMacFromVec(const std::vector <uint8_t> inputvec);
 
 std::vector<std::string> split(std::string s, const char delimiter);
 
+std::string MacVecToStringWithDelimiters(std::vector <uint8_t> inputvec, const char delimiter);
 std::string VecToString(std::vector <uint8_t> inputvec);
 std::string VecToStringWithDelimiters(std::vector <uint8_t> inputvec, const char delimiter);
-std::string MacVecToStringWithDelimiters(std::vector <uint8_t> inputvec, const char delimiter);
+
 
 
 const auto VTSWD = VecToStringWithDelimiters;

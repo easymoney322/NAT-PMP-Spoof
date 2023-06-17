@@ -94,10 +94,10 @@ std::string MacVecToStringWithDelimiters(std::vector <uint8_t> inputvec, const c
     std::string retval;
     for (int i = 0; i < (inputvec.size() - 1); i++)
     {
-        retval += std::format("{:x}", inputvec.at(i));
+        retval += std::format("{:02x}", inputvec.at(i));
         retval += delimiter;
     }
-    retval += std::format("{:x}", inputvec.at(inputvec.size() - 1));
+    retval += std::format("{:02x}", inputvec.at(inputvec.size() - 1));
     return retval;
 }
 

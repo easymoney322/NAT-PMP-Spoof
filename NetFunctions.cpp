@@ -1,7 +1,7 @@
 #include "NetFunctions.hpp"
 
-
-uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev Out, bool lstcp, uint16_t lsinternalport, uint16_t lsexternalport, uint16_t lsGWlistenport, uint32_t mappingtime)
+#define VERBOSE
+uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev Out, bool lstcp, uint16_t lsinternalport, uint16_t lsexternalport, std::string lsDGWAY, uint16_t lsGWlistenport, uint32_t mappingtime)
 {
     /*
            0                   1                   2                   3
@@ -40,6 +40,7 @@ uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, 
         lsbuffer[10] = (mappingtime >> 8) & 0xFF;
         lsbuffer[11] = (mappingtime) & 0xFF;      //LSB
 
+        std::cout << "Packet's payload is set to: ";
         for (int z = 0; z < 11; z++)
         {
             std::cout << std::setfill('0') << std::setw(2) << (int)lsbuffer[z] << '-';
@@ -47,7 +48,7 @@ uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, 
         std::cout << std::setfill('0') << std::setw(2) << (int)lsbuffer[11] << std::endl;
 
         pcpp::EthLayer newEthernetLayer(lsDMAC, lsGWMAC);
-        pcpp::IPv4Layer newIPLayer(pcpp::IPv4Address(lsDADDR), pcpp::IPv4Address(Out.gwayip));
+        pcpp::IPv4Layer newIPLayer(pcpp::IPv4Address(lsDADDR), pcpp::IPv4Address((std::string) lsDGWAY));
         newIPLayer.getIPv4Header()->timeToLive = 64;
         newIPLayer.getIPv4Header()->ipId = htons(2000);
         pcpp::UdpLayer newUdpLayer(lsinternalport, lsGWlistenport);
@@ -71,7 +72,7 @@ uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, 
             else
             {
                 int sentCount = dev->sendPacket(&newPacket);
-                std::cout << sentCount << std::endl;
+                std::cout << "Trying to send "<< sentCount << " packet(s)"<< std::endl;
             }
             free(lsbuffer);
             return 0;
@@ -208,10 +209,27 @@ WinDev FindAppropriateDevice(const std::vector <WinDev> inputvec, const std::str
     {
         if ((inputvec[i].bitmask & reformatedDestIP) == inputvec[i].netaddress)
         {
+            std::cout << "Found appropriate interface at index=" << inputvec[i].interfaceindex << std::endl;
+            return inputvec[i];
+        }
+    }
+    std::cout << "Wasn't able to find output device from the same network." << std::endl;
+    return { "", "", {NULL},0,0,0,0,0 }; //We probably should use default GW if interface wasn't found
+}
+
+WinDev FindAppropriateDeviceByMac(const std::vector <WinDev> inputvec, const std::string SMAC)
+{
+    std::string intmac{ "" };
+    for (int i = 0; i < inputvec.size(); i++)
+    {
+        intmac.clear();
+        intmac = MacVecToStringWithDelimiters(inputvec[i].macaddrvec, ':');
+        if (SMAC == intmac)
+        {
             std::cout << std::endl << "Found appropriate interface at index=" << inputvec[i].interfaceindex << std::endl;
             return inputvec[i];
         }
     }
+    std::cerr << "Wasn't able to find an output device with matching Source MAC. Check if passed MAC is all lowercase, and if there is any typo" << std::endl;
     return { "", "", {NULL},0,0,0,0,0 }; //We probably should use default GW if interface wasn't found
 }
-

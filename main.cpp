@@ -24,15 +24,39 @@
 WinDev OutputInterface;
 int main(int argc, char* argv[])
 {
- 
+
     if (EXIT_FAILURE == LaunchOptionsProcessing(argc, argv)  ) //Handling of launch arguments
     {
         return EXIT_FAILURE;
     }
 
- 
+
     getDevices(); //Interfaces will be added to DEVS vector.
     OutputInterface = FindAppropriateDevice(DEVS, DADDR); //Will return WinDev object with interface from the same network
+    if (DGWAY.empty())
+    {
+        DGWAY = OutputInterface.gwayip;
+    }
+
+
+    if ("" == OutputInterface.ipaddr )
+    {
+        if (!SMAC.empty())
+        {
+            OutputInterface = FindAppropriateDeviceByMac(DEVS, SMAC);
+            if ("" == OutputInterface.ipaddr)
+            {
+                std::cerr << "Wasn't able to determine output interface." << std::endl;
+                return EXIT_FAILURE;
+            }
+        }
+        else 
+        {
+            std::cerr << "Source MAC wasn't specified. Aborting..." << std::endl;
+            return EXIT_FAILURE;
+        }
+    }
+    std::cout << "Output IPv4 is " << OutputInterface.ipaddr << std::endl;
 
     if (DMAC.empty())  //If we don't pass destination MAC, we need to get it with ARP
     {
@@ -56,7 +80,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    uint8_t pretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, istcp, internalport, externalport, gwlistenerport, mappinglifetime);
+    uint8_t pretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, istcp, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
     if (0 == pretval)
         std::cout << "Nat-PMP request sent" << std::endl;
 

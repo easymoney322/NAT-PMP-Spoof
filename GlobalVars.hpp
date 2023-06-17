@@ -7,15 +7,16 @@
 extern bool istcp;
 extern struct WinDev;
 extern std::vector<WinDev> DEVS;
-extern std::string SMAC; //Our MAC 
+extern std::string SMAC; //Our MAC (Optional, might be reqired to determine output interface if target is in a different subnet)
 extern std::string DMAC; //MAC of device we will be impersonating (Optional)
 extern std::string GWMAC; //Gateway MAC (Optional)
 extern std::string DADDR; //IPv4 of device we will be impersonating 
 extern std::string DGWAY; //IPv4 of gateway device (Optional)
-extern uint16_t gwlistenerport; //Default port nat-pmp listens to
+extern uint16_t gwlistenerport; //Port that NAT-PMP-capable gateway listening to
 extern uint16_t internalport;
 extern uint16_t externalport;
 extern uint32_t mappinglifetime; //Recommended to be 2 hrs (https://datatracker.ietf.org/doc/html/rfc6886)
+
 extern struct WinDev {
     std::string ipaddr{ "" }; //IPv4 address of an interface as as tring
     std::string gwayip{ "" }; //DGWAY as a string

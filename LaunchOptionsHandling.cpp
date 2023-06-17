@@ -3,7 +3,7 @@
 std::vector<std::string> launcharguments;
 int LaunchOptionsProcessing(int localargc, char* localargv[])
 {
-    if (19 < localargc)  // 8*2 + TCP + 1 + 1
+    if (21 < localargc)  // 8*2 + TCP + 1 + 1
     {
         throw std::runtime_error("too many input parameters!");
     }
@@ -22,7 +22,8 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
             << "-GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351)" << std::endl
             << "-GW xxx.xxx.xxx.xxx  - IPv4 of the GateWay (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl
             << "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC (Optional, but host must be reachable with NetBios)" << std::endl
-            << "-GM xx:xx:xx:xx:xx:xx  - Gateway MAC (Optional, but gateway must be reachable with NetBios)" << std::endl;
+            << "-GM xx:xx:xx:xx:xx:xx  - Gateway MAC (Optional, but gateway must be reachable with NetBios)" << std::endl
+            << "-SM xx:xx:xx:xx:xx:xx - Out source MAC !CASE SENSITIVE, USE LOWER CASE! (Optional, if host in the same subnet as the target)" << std::endl;
         return EXIT_FAILURE;
     }
     
@@ -41,8 +42,9 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
             << "-TCP  - Specifiy to create TCP mapping instead of UDP (Optional)" << std::endl
             << "-GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351)" << std::endl
             << "-GW xxx.xxx.xxx.xxx  - IPv4 of the GateWay (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl
-            << "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC (Optional, but host must be reachable with NetBios)" << std::endl
-            << "-GM xx:xx:xx:xx:xx:xx  - Gateway MAC (Optional, but gateway must be reachable with NetBios)" << std::endl;
+            << "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC !CASE SENSITIVE, USE LOWER CASE! (Optional, but host must be reachable with NetBios)" << std::endl
+            << "-GM xx:xx:xx:xx:xx:xx  - Gateway MAC !CASE SENSITIVE, USE LOWER CASE!(Optional, but gateway must be reachable with NetBios)" << std::endl
+            << "-SM xx:xx:xx:xx:xx:xx - Out source MAC !CASE SENSITIVE, USE LOWER CASE! (Optional, if host in the same subnet as the target)" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -136,6 +138,17 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     else
     {
         GWMAC.clear();
+    }
+
+
+    if (true == has_option(launcharguments, "-SM")) //Gateway MAC argument handling
+    {
+        mac_testerproto("-SM", SMAC);
+        std::cout << "Source MAC is set to " << SMAC << std::endl;
+    }
+    else
+    {
+        SMAC.clear();
     }
 
 

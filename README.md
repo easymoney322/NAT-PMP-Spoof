@@ -5,6 +5,10 @@ Spoofing NAT-PMP on Windows. There were no good NAT-PMP apps for Windows so I ma
 The project allows user to craft a packet and send it to Gateway for port mapping. It supposed to work with UPNP as well, and works with miniupnpd.
 User may specify any IPv4 address, as opposed to natpmpc. Since it will impersonate specified host, the host either need to be reachable with NetBIOS, or hosts's addresses need to be passed to the program.
 
+# Requirements
+* x64 Windows 
+* wpcap (can be installed with npcap https://npcap.com/ )
+
 # Usage
 * -help  - Shows this message;
 * -PH xxxxx  -  Port on the host, who we are impersonating (REQUIRED);

@@ -120,6 +120,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     if (true == has_option(launcharguments, "-DM")) //Destination MAC argument handling
     {
         mac_testerproto("-DM", DMAC);
+        std::cout << "Destination MAC is set to " << DMAC << std::endl;
     }
     else
     {
@@ -130,6 +131,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     if (true == has_option(launcharguments, "-GM")) //Gateway MAC argument handling
     {
         mac_testerproto("-GM", GWMAC);
+        std::cout << "GateWay MAC is set to " << GWMAC << std::endl;
     }
     else
     {
@@ -186,7 +188,7 @@ bool has_option(const std::vector<std::string>& args, const std::string& option_
     return false;
 }
 
-void mac_testerproto(const char * launchparam, std::string globalvar)
+void mac_testerproto(const char * launchparam, std::string &globalvar)
 {
     std::string premac = get_option(launcharguments, launchparam);
     //!! THERE'S NEED TO BE MAC VALIDNESS CHECK BUT THERE IS NONE

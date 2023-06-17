@@ -7,6 +7,7 @@
 #include <bitset>
 
 int MakeMeIpv4(uint32_t input, unsigned int& a, unsigned int& b, unsigned int& c, unsigned int& d);
+uint16_t portcheck(const std::string inputstring, const char* whos);
 uint32_t SchizoConverter(std::string inputstring);
 
 void PrintIPV4(const char* msg, uint32_t input);

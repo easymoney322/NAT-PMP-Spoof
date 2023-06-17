@@ -18,8 +18,14 @@ User may specify any IPv4 address, as opposed to natpmpc. Since it will imperson
 * -GM xx:xx:xx:xx:xx:xx  - Gateway MAC (Optional, but gateway must be reachable with NetBios);
 
 # Q&A
-* Q: Can it create TCP mappings? A: Yes, it can.
-* Q: I need both TCP&UDP, do I need to run it twice? A: Yes, TCP+UDP implementation will be added later.
+* Q: Can it create TCP mappings? 
+Yes, it can.
+* Q: Will it work if secure_mode is set to "yes" on my gateway device?
+Yes, that's the whole point of this project.
+* Q: I need both TCP&UDP, do I need to run it twice?
+Yes, TCP+UDP implementation will be added later.
+* Q: How can I be sure that the mapping is really created?
+There is no such feature right now, but you can use UPnP Wizard (may not show mapping lifetime correctly) or you can check NAT-PMP leases on your GateWay (e.g. /tmp/upnp.leases)
 
 # Libraries in use
 * Win32, iphlpapi ;

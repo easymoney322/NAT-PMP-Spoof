@@ -110,3 +110,27 @@ void PrintMacFromVec(const std::vector <uint8_t> inputvec)
     }
     std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)inputvec.at(k) << std::endl;
 }
+
+uint16_t portcheck(const std::string inputstring, const char* whos)
+{
+    int64_t portinput;
+    try
+    {
+        portinput = std::stoi(inputstring); //Does it handle exceptions?
+    }
+    catch (const std::invalid_argument& ia)
+    {
+        std::cerr << "Invalid argument: " << ia.what() << " when processing port host number." << std::endl;
+        return 0;
+    }
+    if (portinput < 1025)
+    {
+        std::cerr << "Warning: Ports in range 0-1024 are privileged ports, and such binding request might be denied by the GateWay." << std::endl;
+    }
+    if (!((portinput > 0) && (portinput < 65536)))
+    {
+        std::cerr << "Wrong " << whos << " port number!" << std::endl;
+        return 0;
+    }
+    return portinput;
+}

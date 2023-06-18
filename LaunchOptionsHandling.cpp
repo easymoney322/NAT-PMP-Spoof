@@ -172,7 +172,14 @@ std::string get_option(const std::vector<std::string>& args, const std::string& 
         {
             if ((it + 1) != end)
             {
-                return *(it + 1);
+                if ('-' != (*(it + 1)).at(0))
+                {
+                    return *(it + 1);
+                }
+                else
+                {
+                    std::cerr << std::endl << "Missing argument for option " << option_name << " !" << std::endl;
+                }
             }
         }
     }
@@ -195,15 +202,22 @@ bool has_option(const std::vector<std::string>& args, const std::string& option_
 void mac_testerproto(const char * launchparam, std::string &globalvar)
 {
     std::string premac = get_option(launcharguments, launchparam);
-    char delim = DetermineDelimiter(premac, 2);
-    if ('\0' != delim)
+    if (!premac.empty())
     {
-        std::vector<std::string> splittedmac = split(premac, delim);
-        premac = VecToStringWithDelimiters(splittedmac, ':');
-        globalvar = premac;
+        char delim = DetermineDelimiter(premac, 2);
+        if ('\0' != delim)
+        {
+            std::vector<std::string> splittedmac = split(premac, delim);
+            premac = VecToStringWithDelimiters(splittedmac, ':');
+            globalvar = premac;
+        }
+        else
+        {
+            std::cerr << "Unable to test MAC address for " << launchparam << " launch argument" << std::endl;
+        }
     }
-    else 
+    else
     {
-        std::cerr << "Unable to test MAC address for " << launchparam << " launch argument" << std::endl;
+        std::cerr << "An error occurred during \"" << launchparam << " \" processing!" << std::endl;
     }
 }

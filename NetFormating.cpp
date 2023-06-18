@@ -131,25 +131,35 @@ void PrintMacFromVec(const std::vector <uint8_t> inputvec)
 uint16_t portcheck(const std::string inputstring, const char* whos)
 {
     int64_t portinput;
-    try
+    if (!inputstring.empty())
     {
-        portinput = std::stoi(inputstring); //Does it handle exceptions?
+        try
+        {
+            portinput = std::stoi(inputstring); //Does it handle exceptions?
+        }
+        catch (const std::invalid_argument& ia)
+        {
+            std::cerr << "Invalid argument: " << ia.what() << " when processing port number for " << whos << std::endl;
+            return 0;
+        }
+        if (portinput < 1025)
+        {
+            std::cerr << "Warning: Ports in range 0-1024 are privileged ports, and such binding request might be denied by the GateWay." << std::endl;
+        }
+        if (!((portinput > 0) && (portinput < 65536)))
+        {
+            std::cerr << "Wrong " << whos << " port number!" << std::endl;
+            return 0;
+        }
+        return portinput;
     }
-    catch (const std::invalid_argument& ia)
+    else
     {
-        std::cerr << "Invalid argument: " << ia.what() << " when processing port host number." << std::endl;
+        std::string outtext = whos;
+        outtext[0] = toupper(outtext[0]);
+        std::cerr << outtext << " port launch argument is specified, but the value for port is missing!" << std::endl;
         return 0;
     }
-    if (portinput < 1025)
-    {
-        std::cerr << "Warning: Ports in range 0-1024 are privileged ports, and such binding request might be denied by the GateWay." << std::endl;
-    }
-    if (!((portinput > 0) && (portinput < 65536)))
-    {
-        std::cerr << "Wrong " << whos << " port number!" << std::endl;
-        return 0;
-    }
-    return portinput;
 }
 
 char DetermineDelimiter(std::string inputstring, uint8_t expectedblocksize)

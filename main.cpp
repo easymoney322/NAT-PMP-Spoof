@@ -75,15 +75,32 @@ int main(int argc, char* argv[])
             std::vector <uint8_t> gwaymacvec;
             std::cout << std::endl << "Gateway MAC not found, making an ARP request..." << std::endl;
             sendarp(OutputInterface, DGWAY, gwaymacvec);
-            std::cout << std::endl;
-            GWMAC = VecToString(gwaymacvec);
+            if (!gwaymacvec.empty())
+            {
+                GWMAC = VecToString(gwaymacvec);
+            }
+        }
+    }
+    else 
+    {
+        if (GWMAC.empty())
+        {
+            std::vector <uint8_t> gwaymacvec;
+            std::cout << std::endl << "Gateway MAC not found, making an ARP request..." << std::endl;
+            sendarp(OutputInterface, DGWAY, gwaymacvec);
+            if (!gwaymacvec.empty())
+            {
+                GWMAC = VecToString(gwaymacvec);
+            }
         }
     }
 
-    uint8_t pretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, istcp, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
-    if (0 == pretval)
-        std::cout << "Nat-PMP request sent" << std::endl;
-
+    if (!GWMAC.empty())
+    {
+        uint8_t pretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, istcp, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
+        if (0 == pretval)
+            std::cout << "Nat-PMP request sent" << std::endl;
+    }
     system("PAUSE");
     return 0;
 }

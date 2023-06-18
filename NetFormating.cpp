@@ -9,9 +9,11 @@ std::vector<std::string> split(std::string s, const char delimiter)
     {
         substr = s.substr(pos_start, pos_end - pos_start);
         pos_start = pos_end + 1;
+        std::transform(substr.begin(), substr.end(), substr.begin(), [](unsigned char c) { return std::tolower(c); });
         res.push_back(substr);
     }
     res.push_back(s.substr(pos_start));
+   
     return res;
 }
 
@@ -74,6 +76,7 @@ std::string VecToString(std::vector <uint8_t> inputvec)
         retval += inputvec.at(i);
 
     }
+    std::transform(retval.begin(), retval.end(), retval.begin(), [](unsigned char c) { return std::tolower(c); });
     return retval;
 }
 
@@ -86,6 +89,20 @@ std::string VecToStringWithDelimiters(std::vector <uint8_t> inputvec, const char
         retval += delimiter;
     }
     retval += std::to_string(inputvec.at(inputvec.size() - 1));
+    std::transform(retval.begin(), retval.end(), retval.begin(), [](unsigned char c) { return std::tolower(c); });
+    return retval;
+}
+
+std::string VecToStringWithDelimiters(std::vector <std::string> inputvec, const char delimiter)
+{
+    std::string retval;
+    for (int i = 0; i < (inputvec.size() - 1); i++)
+    {
+        retval += (inputvec.at(i));
+        retval += delimiter;
+    }
+    retval += (inputvec.at(inputvec.size() - 1));
+    std::transform(retval.begin(), retval.end(), retval.begin(), [](unsigned char c) { return std::tolower(c); });
     return retval;
 }
 
@@ -133,4 +150,34 @@ uint16_t portcheck(const std::string inputstring, const char* whos)
         return 0;
     }
     return portinput;
+}
+
+char DetermineDelimiter(std::string inputstring, uint8_t expectedblocksize)
+{
+    uint8_t incr = expectedblocksize + 1;
+
+    unsigned int a = inputstring.size() / incr; //Delimiters count
+    unsigned int b = (inputstring.size() + 1) / incr; //Blocks count
+    unsigned int c = (b * 2) + a;
+    char g = '\0';
+    if (inputstring.size() == c)
+    {
+        g = inputstring.at(expectedblocksize);
+        bool test = true;
+        for (int z = 2; z < inputstring.size(); z += 3)
+        {
+            if (inputstring.at(z) != g)
+            {
+                test = false;
+                std::cerr << "Inconsistent Delimiters or size!" << std::endl;
+                break;
+            }
+        }
+        if (true == test)
+        {
+            return g;
+        }
+    }
+    g = '\0';
+    return g;
 }

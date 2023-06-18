@@ -1,5 +1,18 @@
 #include "LaunchOptionsHandling.hpp"
 
+#define usagetext  "Usage: " << std::endl \
+<< "-help  - Shows this message." << std::endl \
+<< "-DA xxx.xxx.xxx.xxx  - IPv4 of host we will be impersonating (REQUIRED)" << std::endl \
+<< "-PH xxxxx  -  Port on the host, who we are impersonating (REQUIRED)" << std::endl \
+<< "-PO xxxxx  - Port on the GateWay (Optional, defaults to specified host port)" << std::endl \
+<< "-T xxxxxxxxx  - Time of the binding in seconds: 0 for infinite, the max value is 2^32. (Optional, defaults to 7200)" << std::endl \
+<< "-TCP  - Specifiy to create TCP mapping instead of UDP (Optional)" << std::endl \
+<< "-GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351)" << std::endl \
+<< "-GW xxx.xxx.xxx.xxx  - IPv4 of the GateWay (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl \
+<< "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC (Optional, but host must be reachable with NetBios)" << std::endl \
+<< "-GM xx:xx:xx:xx:xx:xx  - Gateway MAC (Optional, but gateway must be reachable with NetBios)" << std::endl \
+<< "-SM xx:xx:xx:xx:xx:xx  - Out source MAC !CASE SENSITIVE, USE LOWER CASE! (Optional, if host in the same subnet as the target)" << std::endl; 
+
 std::vector<std::string> launcharguments;
 int LaunchOptionsProcessing(int localargc, char* localargv[])
 {
@@ -12,18 +25,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     if (5 > localargc)   // (PH + DA)*2 + 1
     {
         std::cerr << "Not enough arguments!" << std::endl;
-        std::cerr << "Usage: " << std::endl
-            << "-help  - Shows this message." << std::endl
-            << "-PH xxxxx  -  Port on the host, who we are impersonating (REQUIRED)" << std::endl
-            << "-DA xxx.xxx.xxx.xxx  - IPv4 of host we will be impersonating (REQUIRED)" << std::endl
-            << "-PO xxxxx  - Port on the GateWay (Optional, defaults to specified host port)" << std::endl //If not passed, will be the same as port on the host
-            << "-T xxxxxxxxx  - Time of the binding in seconds: 0 for infinite, the max value is 2^32. (Optional, defaults to 7200)" << std::endl
-            << "-TCP  - Specifiy to create TCP mapping instead of UDP (Optional)" << std::endl
-            << "-GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351)" << std::endl
-            << "-GW xxx.xxx.xxx.xxx  - IPv4 of the GateWay (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl
-            << "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC (Optional, but host must be reachable with NetBios)" << std::endl
-            << "-GM xx:xx:xx:xx:xx:xx  - Gateway MAC (Optional, but gateway must be reachable with NetBios)" << std::endl
-            << "-SM xx:xx:xx:xx:xx:xx - Out source MAC !CASE SENSITIVE, USE LOWER CASE! (Optional, if host in the same subnet as the target)" << std::endl;
+        std::cerr << usagetext;
         return EXIT_FAILURE;
     }
     
@@ -33,18 +35,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
 
     if ((has_option(launcharguments, "-help") || has_option(launcharguments, "--help")))
     {
-        std::cerr << "Usage: " << std::endl
-            << "-help  - Shows this message." << std::endl
-            << "-PH xxxxx  -  Port on the host, who we are impersonating (REQUIRED)" << std::endl
-            << "-DA xxx.xxx.xxx.xxx  - IPv4 of host we will be impersonating (REQUIRED)" << std::endl
-            << "-PO xxxxx  - Port on the GateWay (Optional, defaults to specified host port)" << std::endl //If not passed, will be the same as port on the host
-            << "-T xxxxxxxxx  - Time of the binding in seconds: 0 for infinite, the max value is 2^32. (Optional, defaults to 7200)" << std::endl
-            << "-TCP  - Specifiy to create TCP mapping instead of UDP (Optional)" << std::endl
-            << "-GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351)" << std::endl
-            << "-GW xxx.xxx.xxx.xxx  - IPv4 of the GateWay (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl
-            << "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC !CASE SENSITIVE, USE LOWER CASE! (Optional, but host must be reachable with NetBios)" << std::endl
-            << "-GM xx:xx:xx:xx:xx:xx  - Gateway MAC !CASE SENSITIVE, USE LOWER CASE!(Optional, but gateway must be reachable with NetBios)" << std::endl
-            << "-SM xx:xx:xx:xx:xx:xx - Out source MAC !CASE SENSITIVE, USE LOWER CASE! (Optional, if host in the same subnet as the target)" << std::endl;
+        std::cout << usagetext;
         return EXIT_FAILURE;
     }
 
@@ -72,6 +63,29 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     std::cout << "Host port is " << internalport << ". ";
 
 
+    if (true == has_option(launcharguments, "-DA")) // Destination IPv4 argument handling
+    {
+        std::string dastring = get_option(launcharguments, "-DA");
+        pcpp::IPv4Address testv4(dastring);
+        if (true == testv4.isValid())
+        {
+            DADDR = dastring;
+        }
+        else
+        {
+            DADDR.clear();
+            std::cerr << "Specified IPv4 address of the target isn't valid." << std::endl;
+            return EXIT_FAILURE;
+        }
+    }
+    else
+    {
+        std::cerr << "Missing IPv4 address of the target, that is required. Please specify target address with \"-DA\"." << std::endl;
+        return EXIT_FAILURE;
+    }
+    std::cout << "Target's address is " << DADDR << "; " << std::endl;
+
+
     if (true == has_option(launcharguments, "-PO")) //Gateway binding port argument handling 
     {
         std::string ExternalPortString = get_option(launcharguments, "-PO");
@@ -96,33 +110,10 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     istcp = has_option(launcharguments, "-TCP"); // TCP/UDP argument handling
 
 
-    if (true == has_option(launcharguments, "-DA")) // Destination IPv4 argument handling
-    {
-        std::string dastring = get_option(launcharguments, "-DA");
-        pcpp::IPv4Address testv4(dastring);
-        if (true == testv4.isValid())
-        {
-            DADDR = dastring;
-        }
-        else
-        {
-            DADDR.clear();
-            std::cerr << "Specified IPv4 address of the target isn't valid." << std::endl;
-            return EXIT_FAILURE;
-        }
-    }
-    else
-    {
-        std::cerr << "Missing IPv4 address of the target, that is required. Please specify target address with \"-DA\"." << std::endl;
-        return EXIT_FAILURE;
-    }
-    std::cout << "Target's address is " << DADDR << "; " << std::endl;
-
-
     if (true == has_option(launcharguments, "-DM")) //Destination MAC argument handling
     {
         mac_testerproto("-DM", DMAC);
-        std::cout << "Destination MAC is set to " << DMAC << std::endl;
+        std::cout << "Destination MAC is set to " << DMAC << ";" << std::endl;
     }
     else
     {
@@ -133,7 +124,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     if (true == has_option(launcharguments, "-GM")) //Gateway MAC argument handling
     {
         mac_testerproto("-GM", GWMAC);
-        std::cout << "GateWay MAC is set to " << GWMAC << std::endl;
+        std::cout << "GateWay MAC is set to " << GWMAC << ";" << std::endl;
     }
     else
     {
@@ -144,7 +135,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     if (true == has_option(launcharguments, "-SM")) //Gateway MAC argument handling
     {
         mac_testerproto("-SM", SMAC);
-        std::cout << "Source MAC is set to " << SMAC << std::endl;
+        std::cout << "Source MAC is set to " << SMAC << ";" << std::endl;
     }
     else
     {
@@ -204,6 +195,15 @@ bool has_option(const std::vector<std::string>& args, const std::string& option_
 void mac_testerproto(const char * launchparam, std::string &globalvar)
 {
     std::string premac = get_option(launcharguments, launchparam);
-    //!! THERE'S NEED TO BE MAC VALIDNESS CHECK BUT THERE IS NONE
-    globalvar = premac;
+    char delim = DetermineDelimiter(premac, 2);
+    if ('\0' != delim)
+    {
+        std::vector<std::string> splittedmac = split(premac, delim);
+        premac = VecToStringWithDelimiters(splittedmac, ':');
+        globalvar = premac;
+    }
+    else 
+    {
+        std::cerr << "Unable to test MAC address for " << launchparam << " launch argument" << std::endl;
+    }
 }

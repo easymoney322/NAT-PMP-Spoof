@@ -43,9 +43,10 @@ uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, 
         std::cout << "Packet's payload is set to: ";
         for (int z = 0; z < 11; z++)
         {
-            std::cout << std::setfill('0') << std::setw(2) << (int)lsbuffer[z] << '-';
+            std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)lsbuffer[z] << '-';
         }
-        std::cout << std::setfill('0') << std::setw(2) << (int)lsbuffer[11] << std::endl;
+        std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)lsbuffer[11] << std::endl;
+        std::cout << std::dec << std::endl;
 
         pcpp::EthLayer newEthernetLayer(lsDMAC, lsGWMAC);
         pcpp::IPv4Layer newIPLayer(pcpp::IPv4Address(lsDADDR), pcpp::IPv4Address((std::string) lsDGWAY));
@@ -175,6 +176,7 @@ void sendarp(const WinDev localstruct, const std::string destinationv4, std::vec
     else
     {
         printf("Error: SendArp failed with error: %d", dwRetVal);
+        inputvec.clear();
         switch (dwRetVal)
         {
         case ERROR_GEN_FAILURE:

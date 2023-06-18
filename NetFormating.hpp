@@ -1,11 +1,13 @@
 #pragma once
-#include <iostream>
+#include <bitset>
 #include <iomanip>
+#include <iostream>
 #include <format>
 #include <string>
 #include <vector>
-#include <bitset>
+#include <algorithm>
 
+char DetermineDelimiter(std::string inputstring, uint8_t expectedblocksize);
 int MakeMeIpv4(uint32_t input, unsigned int& a, unsigned int& b, unsigned int& c, unsigned int& d);
 uint16_t portcheck(const std::string inputstring, const char* whos);
 uint32_t SchizoConverter(std::string inputstring);
@@ -20,9 +22,8 @@ std::vector<std::string> split(std::string s, const char delimiter);
 
 std::string MacVecToStringWithDelimiters(std::vector <uint8_t> inputvec, const char delimiter);
 std::string VecToString(std::vector <uint8_t> inputvec);
+std::string VecToStringWithDelimiters(std::vector <std::string> inputvec, const char delimiter);
 std::string VecToStringWithDelimiters(std::vector <uint8_t> inputvec, const char delimiter);
 
 
-
-const auto VTSWD = VecToStringWithDelimiters;
 const static auto MVTSWD = MacVecToStringWithDelimiters;

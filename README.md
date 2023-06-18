@@ -3,8 +3,11 @@ Spoofing NAT-PMP on Windows. There were no good NAT-PMP apps for Windows so I ma
 
 # What it does
 The project allows user to craft a packet and send it to Gateway for port mapping. It supposed to work with UPNP as well, and works with miniupnpd.
+
 User may specify any IPv4 address, as opposed to natpmpc. Since it will impersonate specified host, the host either need to be reachable with NetBIOS, or hosts's addresses need to be passed to the program.
+
 This allows you to make a port mapping even with  secure mode enabled natpmp-d, which is helpful when you have no access to the host for who you want to create the port mapping.
+
 If you run the program behind NAT or from different subnet, the work depends on your gateway device. Please test it with low mapping lifetime first, as you might be unable to remove the mapping, as there is no such functionality yet.
 
 # Requirements

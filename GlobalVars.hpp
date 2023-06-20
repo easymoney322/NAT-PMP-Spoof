@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 extern bool istcp;
+extern bool both;
 extern struct WinDev;
 extern std::vector<WinDev> DEVS;
 extern std::string SMAC; //Our MAC (Optional, might be reqired to determine output interface if target is in a different subnet)

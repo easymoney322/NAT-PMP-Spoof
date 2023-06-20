@@ -26,6 +26,7 @@ If you run the program behind NAT or from different subnet, the work depends on 
 * -DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC (Optional, but host must be reachable with NetBios);
 * -GM xx:xx:xx:xx:xx:xx  - Gateway MAC (Optional, but gateway must be reachable with NetBios);
 * -SM xx:xx:xx:xx:xx:xx - Out source MAC (Optional, if host is in the same subnet as the target);
+* -BOTH  - Specify to create both TCP and UDP mappings (Optional);
 
 # Q&A
 * Q: Can it create TCP mappings? 
@@ -34,12 +35,9 @@ Yes, it can.
 * Q: Will it work if secure_mode is set to "yes" on my gateway device?
 
 Yes, that's the whole point of this project.
-* Q: I need both TCP&UDP, do I need to run it twice?
-
-Yes, TCP+UDP implementation will be added later.
 * Q: How can I be sure that the mapping is really created?
 
-There is no such feature right now, but you can use UPnP Wizard (may not show mapping lifetime correctly) or you can check NAT-PMP leases on your GateWay (e.g. /tmp/upnp.leases)
+There is no feature for checking right now, but you can use UPnP Wizard (may not show mapping lifetime correctly) or you can check NAT-PMP leases on your GateWay (e.g. /tmp/upnp.leases)
 * Q: How can I remove mapping?
 
 There is no such feature right now, but you can still do it with UPnP Wizard or upnp.leases file.

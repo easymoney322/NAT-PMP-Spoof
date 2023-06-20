@@ -7,6 +7,7 @@
 << "-PO xxxxx  - Port on the GateWay (Optional, defaults to specified host port)" << std::endl \
 << "-T xxxxxxxxx  - Time of the binding in seconds: 0 for infinite, the max value is 2^32. (Optional, defaults to 7200)" << std::endl \
 << "-TCP  - Specifiy to create TCP mapping instead of UDP (Optional)" << std::endl \
+<< "-BOTH  - Specify to create both TCP and UDP mappings (Optional)" << std::endl \
 << "-GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351)" << std::endl \
 << "-GW xxx.xxx.xxx.xxx  - IPv4 of the GateWay (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl \
 << "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC (Optional, but host must be reachable with NetBios)" << std::endl \
@@ -24,7 +25,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
 
     if (5 > localargc)   // (PH + DA)*2 + 1
     {
-        std::cerr << "Not enough arguments!" << std::endl;
+        std::cerr << std::endl << "Error: Not enough arguments!" << std::endl;
         std::cerr << usagetext;
         return EXIT_FAILURE;
     }
@@ -57,7 +58,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     }
     else
     {
-        std::cerr << "Missing port argument. Please specify host's port with \"-PH\"." << std::endl;
+        std::cerr << std::endl << "Error: Missing port argument. Please specify host's port with \"-PH\"." << std::endl;
         return EXIT_FAILURE;
     }
     std::cout << "Host port is " << internalport << ". ";
@@ -74,13 +75,13 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
         else
         {
             DADDR.clear();
-            std::cerr << "Specified IPv4 address of the target isn't valid." << std::endl;
+            std::cerr << std::endl << "Error: Specified IPv4 address of the target isn't valid." << std::endl;
             return EXIT_FAILURE;
         }
     }
     else
     {
-        std::cerr << "Missing IPv4 address of the target, that is required. Please specify target address with \"-DA\"." << std::endl;
+        std::cerr << std::endl << "Error: Missing IPv4 address of the target, that is required. Please specify target address with \"-DA\"." << std::endl;
         return EXIT_FAILURE;
     }
     std::cout << "Target's address is " << DADDR << "; " << std::endl;
@@ -107,8 +108,16 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     std::cout << "Gateway port for binding is " << externalport << ";" << std::endl;
 
 
+
     istcp = has_option(launcharguments, "-TCP"); // TCP/UDP argument handling
 
+    both = has_option(launcharguments, "-BOTH"); // TCP/UDP argument handling
+
+    if (istcp == true == both)
+    {
+        std::cerr << std::endl << "Error: -TCP and -BOTH are mutually exclusive. You should only specify one.";
+        return EXIT_FAILURE;
+    }
 
     if (true == has_option(launcharguments, "-DM")) //Destination MAC argument handling
     {
@@ -154,7 +163,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
         else
         {
             DGWAY.clear();
-            std::cerr << "Specified IPv4 address of the gateway isn't valid." << std::endl;
+            std::cerr << std::endl << "Error: Specified IPv4 address of the gateway isn't valid." << std::endl;
             return EXIT_FAILURE;
         }
     }
@@ -213,11 +222,11 @@ void mac_testerproto(const char * launchparam, std::string &globalvar)
         }
         else
         {
-            std::cerr << "Unable to test MAC address for " << launchparam << " launch argument" << std::endl;
+            std::cerr << std::endl << "Error: Unable to test MAC address for " << launchparam << " launch argument" << std::endl;
         }
     }
     else
     {
-        std::cerr << "An error occurred during \"" << launchparam << " \" processing!" << std::endl;
+        std::cerr << std::endl << "An error occurred during \"" << launchparam << " \" processing!" << std::endl;
     }
 }

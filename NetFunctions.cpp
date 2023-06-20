@@ -40,13 +40,13 @@ uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, 
         lsbuffer[10] = (mappingtime >> 8) & 0xFF;
         lsbuffer[11] = (mappingtime) & 0xFF;      //LSB
 
-        std::cout << "Packet's payload is set to: ";
+        std::cout << std::endl << "Packet's payload is set to: ";
         for (int z = 0; z < 11; z++)
         {
             std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)lsbuffer[z] << '-';
         }
         std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)lsbuffer[11] << std::endl;
-        std::cout << std::dec << std::endl;
+        std::cout << std::dec;
 
         pcpp::EthLayer newEthernetLayer(lsDMAC, lsGWMAC);
         pcpp::IPv4Layer newIPLayer(pcpp::IPv4Address(lsDADDR), pcpp::IPv4Address((std::string) lsDGWAY));
@@ -72,8 +72,12 @@ uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, 
                 std::cout << "!Couldn't open the device." << std::endl;
             else
             {
+                std::cout << "Trying to send packet for ";
+                if (true ==lstcp)
+                    std::cout << "TCP"  << std::endl;
+                else
+                    std::cout << "UDP" << std::endl;
                 int sentCount = dev->sendPacket(&newPacket);
-                std::cout << "Trying to send "<< sentCount << " packet(s)"<< std::endl;
             }
             free(lsbuffer);
             return 0;

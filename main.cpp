@@ -97,9 +97,29 @@ int main(int argc, char* argv[])
 
     if (!GWMAC.empty())
     {
+        if (1 == both)
+        {
+            uint8_t pretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, false, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
+            if (0 == pretval)
+            {
+                std::cout << "Nat-PMP request sent for UDP" << std::endl;
+            }
+            istcp = true;
+            pretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, istcp, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
+            if (0 == pretval)
+            {
+                std::cout << "Nat-PMP request sent for TCP" << std::endl;
+            }
+            return 0;
+        }
+
+
         uint8_t pretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, istcp, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
         if (0 == pretval)
+        {
             std::cout << "Nat-PMP request sent" << std::endl;
+        }
+
     }
     system("PAUSE");
     return 0;

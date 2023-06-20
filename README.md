@@ -14,6 +14,7 @@ If you run the program behind NAT or from different subnet, the work depends on 
 * x64 Windows 
 * wpcap (can be installed with npcap https://npcap.com/ )
 
+
 # Usage
 * -help  - Shows this message;
 * -PH xxxxx  -  Port on the host, who we are impersonating (REQUIRED);
@@ -21,12 +22,13 @@ If you run the program behind NAT or from different subnet, the work depends on 
 * -PO xxxxx  - Port on the GateWay (Optional, defaults to specified host port)" << std::endl //If not passed, will be the same as port on the host;
 * -T xxxxxxxxx  - Time of the binding in seconds: 0 for infinite, the max value is 2^32. (Optional, defaults to 7200);
 * -TCP  - Specifiy to create TCP mapping instead of UDP (Optional);
+* -BOTH  - Specify to create both TCP and UDP mappings (Optional);
 * -GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351);
 * -GW xxx.xxx.xxx.xxx  - IPv4 of the GateWay (Optional, defaults to IPv4 address of the gateway on the interface);
 * -DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC (Optional, but host must be reachable with NetBios);
 * -GM xx:xx:xx:xx:xx:xx  - Gateway MAC (Optional, but gateway must be reachable with NetBios);
 * -SM xx:xx:xx:xx:xx:xx - Out source MAC (Optional, if host is in the same subnet as the target);
-* -BOTH  - Specify to create both TCP and UDP mappings (Optional);
+
 
 # Q&A
 * Q: Can it create TCP mappings? 

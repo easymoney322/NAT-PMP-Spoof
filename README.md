@@ -1,5 +1,5 @@
 # NAT-PMP-Spoof
-Spoofing NAT-PMP on Windows. There were no good NAT-PMP apps for Windows so I made one.
+Spoofing NAT-PMP on Windows. There were no good NAT-PMP apps for Windows, so I made one.
 
 # What it does
 The project allows user to craft a packet and send it to Gateway for port mapping. It supposed to work with UPNP as well, and works with miniupnpd.
@@ -11,9 +11,9 @@ This allows you to make a port mapping even with  secure mode enabled natpmp-d, 
 If you run the program behind NAT or from different subnet, the work depends on your gateway device. Please test it with low mapping lifetime first, as you might be unable to remove the mapping, as there is no such functionality yet.
 
 # Requirements
-* x64 Windows 
-* wpcap (can be installed with npcap https://npcap.com/ )
-
+* x64 Windows
+* wpcap (can be installed with [npcap](https://npcap.com/)
+* MSVC Runtime
 
 # Usage
 * -help  - Shows this message;
@@ -43,10 +43,9 @@ This command will try to create TCP mapping on found gateway for host (.1.228), 
 Both commands will create mappings that will last 7200 seconds (2 hours). Please note that according to RFC [6886](https://datatracker.ietf.org/doc/html/rfc6886/), "The NAT gateway MAY reduce the lifetime from what the client requested". Also, according to this RFC, some NAT-PMP-capable gateways may reject requests if time isn't set to zero.
 
 Both commands requrie additional data that will be fetched with mechanisms such as ARP-requests or win32 API. 
-
-If, for some reason, the required data cannot be fetched, user must provide it manually by launch arguments. 
-
+If, for some reason, the required data cannot be fetched, user must provide it manually by launch arguments:
 `NAT-PMP-Spoofer.exe -DA 192.168.1.228  -DM b1:6b:00:b5:ba:be  -PH 80 -PO 8080  -TCP  -GW 192.168.1.1  -GM c1:5c:0d:06:1e  -SM ba:be:de:fe:c8:ed -T 0`
+
 Providing additional data with launch arguments also increases speed of the programm, while also reducing network presence.
 
 # Q&A
@@ -72,3 +71,9 @@ You can check binary file with Virus Total (http://virustotal.com) or manually r
 
 # Compatibility with multihomed networks
 Both UPNP and NAT-PMP aren't designed to work under such conditions. You can still manually specify IP addresses of gateways and create mapping on each gateway, however.
+
+# Upcoming features
+[] Viewing mappings;
+[] Removing mappings;
+[] Endianness independent code for ARM-based Windows systems;
+[] 

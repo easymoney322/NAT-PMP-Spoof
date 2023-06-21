@@ -17,8 +17,8 @@ If you run the program behind NAT or from different subnet, the work depends on 
 
 # Usage
 * -help  - Shows this message;
-* -PH xxxxx  -  Port on the host, who we are impersonating (REQUIRED);
-* -DA xxx.xxx.xxx.xxx  - IPv4 of host we will be impersonating (REQUIRED);
+* -PH xxxxx  -  Port on the host, who we are impersonating **(REQUIRED)**;
+* -DA xxx.xxx.xxx.xxx  - IPv4 of host we will be impersonating **(REQUIRED)**;
 * -PO xxxxx  - Port on the GateWay (Optional, defaults to specified host port)" << std::endl //If not passed, will be the same as port on the host;
 * -T xxxxxxxxx  - Time of the binding in seconds: 0 for infinite, the max value is 2^32. (Optional, defaults to 7200);
 * -TCP  - Specifiy to create TCP mapping instead of UDP (Optional);
@@ -40,7 +40,7 @@ This command will try to create UDP mapping on found gateway for host (.1.228), 
 `NAT-PMP-Spoofer.exe -DA 192.168.1.228 -PH 80 -PO 8080 -TCP`
 This command will try to create TCP mapping on found gateway for host (.1.228), forwarding **TCP** traffic from port 8080 on the gateway to port 80 on host. 
 
-Both commands will create mappings that will last 7200 seconds (2 hours). Please note that according to RFC [6886](https://datatracker.ietf.org/doc/html/rfc6886/), "The NAT gateway MAY reduce the lifetime from what the client requested". Also, according to this RFC, some NAT-PMP-capable gateways may reject requests if time isn't set to zero.
+Both commands will create mappings that will last 7200 seconds (2 hours). Please note that according to [RFC 6886](https://datatracker.ietf.org/doc/html/rfc6886/), "The NAT gateway MAY reduce the lifetime from what the client requested". Also, according to this RFC, some NAT-PMP-capable gateways may reject requests if time isn't set to zero.
 
 Both commands requrie additional data that will be fetched with mechanisms such as ARP-requests or win32 API. 
 If, for some reason, the required data cannot be fetched, user must provide it manually by launch arguments:
@@ -73,7 +73,8 @@ You can check binary file with Virus Total (http://virustotal.com) or manually r
 Both UPNP and NAT-PMP aren't designed to work under such conditions. You can still manually specify IP addresses of gateways and create mapping on each gateway, however.
 
 # Upcoming features
-[] Viewing mappings;
-[] Removing mappings;
-[] Endianness independent code for ARM-based Windows systems;
-[] 
+- [ ] Viewing mappings;
+- [ ] Removing mappings;
+- [ ] Endianness independent code for ARM-based Windows systems;
+- [ ] Static builds;
+- [ ] CI/CD;

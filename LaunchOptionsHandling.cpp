@@ -9,10 +9,10 @@
 << "-TCP  - Specifiy to create TCP mapping instead of UDP (Optional)" << std::endl \
 << "-BOTH  - Specify to create both TCP and UDP mappings (Optional)" << std::endl \
 << "-GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351)" << std::endl \
-<< "-GW xxx.xxx.xxx.xxx  - IPv4 of the GateWay in broadcast domain (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl \
-<< "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC (Optional, but host must be reachable with NetBios)" << std::endl \
-<< "-GM xx:xx:xx:xx:xx:xx  - Gateway MAC (Optional, but gateway must be reachable with NetBios)" << std::endl \
-<< "-SM xx:xx:xx:xx:xx:xx  - MAC of output interface (Optional, if host in the same subnet as the target)" << std::endl; 
+<< "-GW xxx.xxx.xxx.xxx  - IPv4 of the NAT-PMP Gateway (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl \
+<< "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC address (Optional, but host must be reachable with NetBios)" << std::endl \
+<< "-GM xx:xx:xx:xx:xx:xx  - MAC address of Gateway in the broadcast domain, that is the next hop (Optional, but gateway must be reachable with NetBios)" << std::endl \
+<< "-SM xx:xx:xx:xx:xx:xx  - MAC address of output interface (Optional, if host in the same subnet as the target)" << std::endl; 
 
 std::vector<std::string> launcharguments;
 int LaunchOptionsProcessing(int localargc, char* localargv[])
@@ -120,7 +120,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     if (true == has_option(launcharguments, "-DM")) //Destination MAC argument handling
     {
         mac_testerproto("-DM", DMAC);
-        std::cout << "Destination MAC is set to " << DMAC << ";" << std::endl;
+        std::cout << "Destination MAC address is set to " << DMAC << ";" << std::endl;
     }
     else
     {
@@ -131,7 +131,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     if (true == has_option(launcharguments, "-GM")) //Gateway MAC argument handling.
     {
         mac_testerproto("-GM", GWMAC);
-        std::cout << "GateWay MAC is set to " << GWMAC << ";" << std::endl;
+        std::cout << "Gateway MAC address is set to " << GWMAC << ";" << std::endl;
     }
     else
     {
@@ -142,7 +142,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     if (true == has_option(launcharguments, "-SM")) //Source MAC argument handling
     {
         mac_testerproto("-SM", SMAC);
-        std::cout << "Source MAC is set to " << SMAC << ";" << std::endl;
+        std::cout << "Source MAC address is set to " << SMAC << ";" << std::endl;
     }
     else
     {

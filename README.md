@@ -24,11 +24,29 @@ If you run the program behind NAT or from different subnet, the work depends on 
 * -TCP  - Specifiy to create TCP mapping instead of UDP (Optional);
 * -BOTH  - Specify to create both TCP and UDP mappings (Optional);
 * -GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351);
-* -GW xxx.xxx.xxx.xxx  - IPv4 of the GateWay (Optional, defaults to IPv4 address of the gateway on the interface);
-* -DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC (Optional, but host must be reachable with NetBios);
-* -GM xx:xx:xx:xx:xx:xx  - Gateway MAC (Optional, but gateway must be reachable with NetBios);
-* -SM xx:xx:xx:xx:xx:xx - Out source MAC (Optional, if host is in the same subnet as the target);
+* -GW xxx.xxx.xxx.xxx  - IPv4 of the NAT-PMP Gateway (Optional, defaults to IPv4 address of the gateway on the interface);
+* -DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC address (Optional, but host must be reachable with NetBios);
+* -GM xx:xx:xx:xx:xx:xx  - MAC address of Gateway in the broadcast domain, that is the next hop (Optional, but gateway must be reachable with NetBios);
+* -SM xx:xx:xx:xx:xx:xx - MAC address of output interface (Optional, if host is in the same subnet as the target);
 
+
+# Examples
+In most of the cases these will be enough:
+* UDP:
+`NAT-PMP-Spoofer.exe -DA 192.168.1.228 -PH 9999`
+This command will try to create UDP mapping on found gateway for host (.1.228), forwarding **UDP** traffic to host's port 9999 from the same UDP port on the Gateway. 
+
+* TCP:
+`NAT-PMP-Spoofer.exe -DA 192.168.1.228 -PH 80 -PO 8080 -TCP`
+This command will try to create TCP mapping on found gateway for host (.1.228), forwarding **TCP** traffic from port 8080 on the gateway to port 80 on host. 
+
+Both commands will create mappings that will last 7200 seconds (2 hours). Please note that according to RFC [6886](https://datatracker.ietf.org/doc/html/rfc6886/), "The NAT gateway MAY reduce the lifetime from what the client requested". Also, according to this RFC, some NAT-PMP-capable gateways may reject requests if time isn't set to zero.
+
+Both commands requrie additional data that will be fetched with mechanisms such as ARP-requests or win32 API. 
+
+If, for some reason, the required data cannot be fetched, user must provide it manually with launch arguments. 
+`NAT-PMP-Spoofer.exe -DA 192.168.1.228  -DM b1:6b:00:b5:ba:be  -PH 80 -PO 8080  -TCP  -GW 192.168.1.1  -GM c1:5c:0d:06:1e  -SM ba:be:de:fe:c8:ed -T 0`
+Providing additional data with launch arguments also increases speed of the programm, while also reducing network presence.
 
 # Q&A
 * Q: Can it create TCP mappings? 

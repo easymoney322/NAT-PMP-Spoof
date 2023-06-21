@@ -44,7 +44,8 @@ Both commands will create mappings that will last 7200 seconds (2 hours). Please
 
 Both commands requrie additional data that will be fetched with mechanisms such as ARP-requests or win32 API. 
 
-If, for some reason, the required data cannot be fetched, user must provide it manually with launch arguments. 
+If, for some reason, the required data cannot be fetched, user must provide it manually by launch arguments. 
+
 `NAT-PMP-Spoofer.exe -DA 192.168.1.228  -DM b1:6b:00:b5:ba:be  -PH 80 -PO 8080  -TCP  -GW 192.168.1.1  -GM c1:5c:0d:06:1e  -SM ba:be:de:fe:c8:ed -T 0`
 Providing additional data with launch arguments also increases speed of the programm, while also reducing network presence.
 

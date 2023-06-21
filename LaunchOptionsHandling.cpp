@@ -9,10 +9,10 @@
 << "-TCP  - Specifiy to create TCP mapping instead of UDP (Optional)" << std::endl \
 << "-BOTH  - Specify to create both TCP and UDP mappings (Optional)" << std::endl \
 << "-GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351)" << std::endl \
-<< "-GW xxx.xxx.xxx.xxx  - IPv4 of the GateWay (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl \
+<< "-GW xxx.xxx.xxx.xxx  - IPv4 of the GateWay in broadcast domain (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl \
 << "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC (Optional, but host must be reachable with NetBios)" << std::endl \
 << "-GM xx:xx:xx:xx:xx:xx  - Gateway MAC (Optional, but gateway must be reachable with NetBios)" << std::endl \
-<< "-SM xx:xx:xx:xx:xx:xx  - Out source MAC !CASE SENSITIVE, USE LOWER CASE! (Optional, if host in the same subnet as the target)" << std::endl; 
+<< "-SM xx:xx:xx:xx:xx:xx  - MAC of output interface (Optional, if host in the same subnet as the target)" << std::endl; 
 
 std::vector<std::string> launcharguments;
 int LaunchOptionsProcessing(int localargc, char* localargv[])
@@ -39,8 +39,6 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
         std::cout << usagetext;
         return EXIT_FAILURE;
     }
-
-
 
 
     if (true == has_option(launcharguments, "-PH")) //Host port argument handling
@@ -130,7 +128,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     }
 
 
-    if (true == has_option(launcharguments, "-GM")) //Gateway MAC argument handling
+    if (true == has_option(launcharguments, "-GM")) //Gateway MAC argument handling.
     {
         mac_testerproto("-GM", GWMAC);
         std::cout << "GateWay MAC is set to " << GWMAC << ";" << std::endl;
@@ -141,7 +139,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     }
 
 
-    if (true == has_option(launcharguments, "-SM")) //Gateway MAC argument handling
+    if (true == has_option(launcharguments, "-SM")) //Source MAC argument handling
     {
         mac_testerproto("-SM", SMAC);
         std::cout << "Source MAC is set to " << SMAC << ";" << std::endl;
@@ -167,8 +165,6 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
             return EXIT_FAILURE;
         }
     }
-
-
 
     return 0;
 }

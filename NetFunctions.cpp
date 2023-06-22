@@ -67,17 +67,26 @@ uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, 
         {
             pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(testv4);
             if (nullptr == dev)
+            {
                 std::cout << "Couldn't find interface by provided IP address or name" << std::endl;
+            }
             if (!dev->open())
+            {
                 std::cout << "!Couldn't open the device." << std::endl;
+            }
             else
             {
                 std::cout << "Trying to send packet for ";
-                if (true ==lstcp)
-                    std::cout << "TCP"  << std::endl;
+                if (true == lstcp)
+                {
+                    std::cout << "TCP" << std::endl;
+                }
                 else
+                {
                     std::cout << "UDP" << std::endl;
+                }
                 int sentCount = dev->sendPacket(&newPacket);
+                std::this_thread::sleep_for(std::chrono::milliseconds(250)); //250ms delay to assure correct processing in series of requests
             }
             free(lsbuffer);
             return 0;

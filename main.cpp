@@ -33,6 +33,8 @@ int main(int argc, char* argv[])
 
     getDevices(); //Interfaces will be added to DEVS vector.
     OutputInterface = FindAppropriateDevice(DEVS, DADDR); //Will return WinDev object with interface from the same network
+
+
     if (DGWAY.empty())
     {
         DGWAY = OutputInterface.gwayip;
@@ -52,7 +54,7 @@ int main(int argc, char* argv[])
         }
         else 
         {
-            std::cerr << "Source MAC wasn't specified. Aborting..." << std::endl;
+            std::cerr << "Source MAC wasn't specified, and no interface with matching subnet was found. Aborting..." << std::endl;
             return EXIT_FAILURE;
         }
     }
@@ -62,7 +64,7 @@ int main(int argc, char* argv[])
     {
         SMAC = MacVecToStringWithDelimiters(OutputInterface.macaddrvec, ':');
         std::vector <uint8_t> targetmac;
-        std::cout << std::endl << "Destination MAC not found, making an ARP request..." << std::endl;
+        std::cout << std::endl << "Destination MAC address not found, making an ARP request..." << std::endl;
         sendarp(OutputInterface, DADDR, targetmac);
         DMAC = MVTSWD(targetmac, ':');
     }
@@ -73,7 +75,7 @@ int main(int argc, char* argv[])
         if (GWMAC.empty())
         {
             std::vector <uint8_t> gwaymacvec;
-            std::cout << std::endl << "Gateway MAC not found, making an ARP request..." << std::endl;
+            std::cout << std::endl << "Gateway MAC address not found, making an ARP request..." << std::endl;
             sendarp(OutputInterface, DGWAY, gwaymacvec);
             if (!gwaymacvec.empty())
             {
@@ -86,7 +88,7 @@ int main(int argc, char* argv[])
         if (GWMAC.empty())
         {
             std::vector <uint8_t> gwaymacvec;
-            std::cout << std::endl << "Gateway MAC not found, making an ARP request..." << std::endl;
+            std::cout << std::endl << "Gateway MAC address not found, making an ARP request..." << std::endl;
             sendarp(OutputInterface, DGWAY, gwaymacvec);
             if (!gwaymacvec.empty())
             {
@@ -119,8 +121,8 @@ int main(int argc, char* argv[])
         {
             std::cout << "Nat-PMP request sent" << std::endl;
         }
-
     }
+
     system("PAUSE");
     return 0;
 }

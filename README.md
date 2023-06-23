@@ -30,8 +30,8 @@ If you run the program behind NAT or from different subnet, the work depends on 
 * -SM xx:xx:xx:xx:xx:xx - MAC address of output interface (Optional, if host is in the same subnet as the target);
 
 ## [Modes] (Optional)
-* -A (Default)  - Single Mapping creating mode
-* -H  - Hold mode (WORK IN PROGRESS);
+* -A (Default)  - Single Mapping creating mode;
+* -H  - Hold mode;
 * -R  - Single mapping removal mode;
 * -RALL  - All mappings removal mode;
 * If no mode argument is provided, mapping creation mode (-A) will be used instead;
@@ -60,7 +60,7 @@ Providing additional data with launch arguments also increases speed of the prog
 * Removing TCP+UDP:
 `NAT-PMP-Spoofer.exe -R -DA 192.168.1.228 -PH 80 -BOTH`
 
-* Removing All NAT-PMP mappings, associated with host:
+* Removing All NAT-PMP mappings that are associated with the host:
 `NAT-PMP-Spoofer.exe -RALL -DA 192.168.1.228`
 
 
@@ -88,7 +88,7 @@ Both UPNP and NAT-PMP aren't designed to work under such conditions. You can sti
 
 # Upcoming features
 - [ ] Viewing mappings;
-- [X] Removing mappings;
+- [ ] Auto-prolongation for hold mode;
 - [ ] Topology images for examples;
 - [ ] Endianness independent code for ARM-based Windows systems;
 - [ ] Configuration via files;

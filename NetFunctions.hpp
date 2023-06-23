@@ -23,4 +23,4 @@ uint_fast8_t DestroyAllMappings(std::string dsDMAC, std::string dsGWMAC, std::st
 uint_fast8_t DestroySingleMapping(std::string dsDMAC, std::string dsGWMAC, std::string dsDADDR, WinDev dsOut, bool tcp, uint_fast16_t dsinternalport, std::string dsDGWAY, uint_fast16_t dsGWlistenport);
 uint_fast8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev Out, bool lstcp, uint_fast16_t lsinternalport, uint_fast16_t lsexternalport, std::string lsDGWAY, uint_fast16_t lsGWlistenport, uint_fast32_t mappingtime);
 uint_fast8_t PrintPayloadFromPacket(pcpp::Packet packet);
-uint_fast8_t RemoveCreatedMappings(std::vector <pcpp::Packet>& packetvector, std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev lsOut, std::string lsDGWAY, uint_fast16_t lsGWlistenport); //Removes all mappings created in the session
+uint_fast8_t RemoveCreatedMappings(std::vector <pcpp::Packet>& packetvector, WinDev lsOut);

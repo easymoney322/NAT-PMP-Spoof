@@ -8,10 +8,12 @@
 #include <climits>
 #include <iostream>
 #include "stdlib.h"
+#include "OtherFunctions.hpp"
 #include "NetFunctions.hpp"
 #include "NetFormating.hpp"
 #include "GlobalVars.hpp"
 #include "LaunchOptionsHandling.hpp"
+#include "OtherFunctions.hpp"
 #pragma comment(lib, "wpcap" )
 #pragma comment(lib, "iphlpapi.lib")
 #pragma comment(lib, "Ws2_32.lib")
@@ -21,7 +23,7 @@
 #pragma comment(lib, "Packet++.lib")
 #pragma comment(lib, "Pcap++.lib")
 
-WinDev OutputInterface;
+
 int main(int argc, char* argv[])
 {
     if (EXIT_FAILURE == LaunchOptionsProcessing(argc, argv)  ) //Handling of launch arguments
@@ -103,15 +105,49 @@ int main(int argc, char* argv[])
     {
 
         uint_fast8_t switchretval = 2;
+        if (2 > progmode)
+        {
+            if (true == both)
+            {
+                switchretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, false, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
+                if (0 == switchretval)
+                {
+                    std::cout << "Nat-PMP request sent for UDP" << std::endl;
+                }
+                istcp = true;
+                switchretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, istcp, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
+                if (0 == switchretval)
+                {
+                    std::cout << "Nat-PMP request sent for TCP" << std::endl;
+                }
+                return 0;
+            }
+            else
+            {
+                switchretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, istcp, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
+                if (0 == switchretval)
+                {
+                    std::cout << "Nat-PMP request sent" << std::endl;
+                }
+            }
+        }
+
+
         switch (progmode)
         {
-            case 1:
-                //if (SetConsoleCtrlHandler(CtrlHandler, TRUE))
-                //{
-                //
-                //}
+            case 1: //-H mode
+            {
+                if (SetConsoleCtrlHandler(CtrlHandler, TRUE))
+                {
+                    std::cout << "Press CTRL+C, CTRL+Break, or close the window to exit and delete all created mappings" << std::endl;
+                    while (true)
+                    {
+                        std::this_thread::sleep_for(std::chrono::seconds(5));
+                    }
+                }
                 break;
-            case 2:
+            }
+            case 2: //-R mode
             {
                 if (true == both)
                 {
@@ -138,7 +174,7 @@ int main(int argc, char* argv[])
                     break;
                 }
             }
-            case 3:
+            case 3: //-RALL mode
             {
                 switchretval = DestroyAllMappings(DMAC, GWMAC, DADDR, OutputInterface, istcp, DGWAY, gwlistenerport);
                 if (0 == switchretval)
@@ -153,29 +189,7 @@ int main(int argc, char* argv[])
                 break;
             default:
             {
-                if (true == both)
-                {
-                    switchretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, false, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
-                    if (0 == switchretval)
-                    {
-                        std::cout << "Nat-PMP request sent for UDP" << std::endl;
-                    }
-                    istcp = true;
-                    switchretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, istcp, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
-                    if (0 == switchretval)
-                    {
-                        std::cout << "Nat-PMP request sent for TCP" << std::endl;
-                    }
-                    return 0;
-                }
-                else
-                {
-                    switchretval = sendspoof(DMAC, GWMAC, DADDR, OutputInterface, istcp, internalport, externalport, DGWAY, gwlistenerport, mappinglifetime);
-                    if (0 == switchretval)
-                    {
-                        std::cout << "Nat-PMP request sent" << std::endl;
-                    }
-                }
+                //-A mode
                 break;
             }
         }

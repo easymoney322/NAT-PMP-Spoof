@@ -31,5 +31,6 @@ extern struct WinDev {
     std::uint_fast32_t broadcastaddress{ 0 }; //IPv4 broadcast address of that network (e.g. 192.168.1.255)
     unsigned long interfaceindex{ 0 }; //So we can check if interface already added and update it accordingly. Index is the same as the one you get with "netsh interface ipv4 show interfaces" command.
 };
+extern WinDev OutputInterface;
 extern std::vector<WinDev> DEVS;
 #endif

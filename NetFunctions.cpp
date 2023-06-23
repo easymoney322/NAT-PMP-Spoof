@@ -320,7 +320,7 @@ uint_fast8_t DestroyAllMappings(std::string dsDMAC, std::string dsGWMAC, std::st
 }
 
 
-uint_fast8_t RemoveCreatedMappings(std::vector <pcpp::Packet> &packetvector, std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev lsOut, std::string lsDGWAY, uint_fast16_t lsGWlistenport)
+uint_fast8_t RemoveCreatedMappings(std::vector <pcpp::Packet> &packetvector, WinDev lsOut)
 {
     pcpp::IPv4Address testv4(lsOut.ipaddr);
     if (true == testv4.isValid())

@@ -1,7 +1,7 @@
 #include "NetFunctions.hpp"
 
 #define VERBOSE
-uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev Out, bool lstcp, uint16_t lsinternalport, uint16_t lsexternalport, std::string lsDGWAY, uint16_t lsGWlistenport, uint32_t mappingtime)
+uint_fast8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev Out, bool lstcp, uint_fast16_t lsinternalport, uint_fast16_t lsexternalport, std::string lsDGWAY, uint_fast16_t lsGWlistenport, uint_fast32_t mappingtime)
 {
     /*
            0                   1                   2                   3
@@ -16,22 +16,22 @@ uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, 
           (https://datatracker.ietf.org/doc/html/rfc6886)
        */
 
-    uint8_t* lsbuffer = (uint8_t*)calloc(12, sizeof(uint8_t)); //4 bytes * 3 rows = 12
+    uint_fast8_t* lsbuffer = (uint_fast8_t*)calloc(12, sizeof(uint_fast8_t)); //4 bytes * 3 rows = 12
     if (lsbuffer)
     {
         lsbuffer[0] = 0; //Version
 
-        uint8_t mappingopcode = 1;
+        uint_fast8_t mappingopcode = 1;
         if (lstcp)
             mappingopcode = 2;
-        lsbuffer[1] = (uint8_t(mappingopcode)); //1 for UDP and 2 for TCP. 
+        lsbuffer[1] = (uint_fast8_t(mappingopcode)); //1 for UDP and 2 for TCP. 
 
         //2nd and 3rd bytes are reserved
-        uint8_t* ptr16t8 = (uint8_t*)(&(lsinternalport)); //Internal (host) port
+        uint_fast8_t* ptr16t8 = (uint_fast8_t*)(&(lsinternalport)); //Internal (host) port
         lsbuffer[4] = *(ptr16t8 + 1); //BE,MSB
         lsbuffer[5] = *ptr16t8;       //LSB
 
-        ptr16t8 = (uint8_t*)(&(lsexternalport)); //External (GW) port
+        ptr16t8 = (uint_fast8_t*)(&(lsexternalport)); //External (GW) port
         lsbuffer[6] = *(ptr16t8 + 1); //BE,MSB
         lsbuffer[7] = *ptr16t8;       //LSB
 
@@ -68,11 +68,13 @@ uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, 
             pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(testv4);
             if (nullptr == dev)
             {
-                std::cout << "Couldn't find interface by provided IP address or name" << std::endl;
+                std::cerr << "Couldn't find interface by provided IP address or name" << std::endl;
+                return 201;
             }
             if (!dev->open())
             {
-                std::cout << "!Couldn't open the device." << std::endl;
+                std::cerr << "Couldn't open the device." << std::endl;
+                return 202;
             }
             else
             {
@@ -86,15 +88,35 @@ uint8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, 
                     std::cout << "UDP" << std::endl;
                 }
                 int sentCount = dev->sendPacket(&newPacket);
+
+
+                if (1 == progmode) //Caching mappings is only needed in Hold mode
+                {
+                    bool alreadyexists = false;
+                    for (unsigned int sp = 0; sp < SentPackets.size(); sp++)
+                    {
+                        if (0 == ComparePayloads(*(SentPackets.at(sp).getLayerOfType<pcpp::PayloadLayer>()), newPayload))
+                        {
+                            alreadyexists = true;
+                            SentPackets.at(sp) = newPacket;
+                        }
+                    }
+                    if (false == alreadyexists)
+                    {
+                        SentPackets.push_back(newPacket);
+                    }
+                }
+
                 std::this_thread::sleep_for(std::chrono::milliseconds(250)); //250ms delay to assure correct processing in series of requests
+
             }
             free(lsbuffer);
             return 0;
         }
-        std::cout << "Host address didn't pass validation check. Aborting..." << std::endl;
+        std::cerr << "Host address didn't pass the validation check. Aborting..." << std::endl;
         return 322;
     }
-    std::cout << "Wasn't able to allocate memory. Aborting..." << std::endl;
+    std::cerr << "Wasn't able to allocate memory. Aborting..." << std::endl;
     return 323;
 }
 
@@ -123,20 +145,20 @@ void getDevices()
             // Contains pointer to current adapter info
             PIP_ADAPTER_INFO pAdapterInfo = AdapterInfo;
             do {
-                std::vector<uint8_t> hwaddr;
+                std::vector<uint_fast8_t> hwaddr;
                 if ('0' != pAdapterInfo->IpAddressList.IpAddress.String[0])
                 {
                     for (unsigned int i = 0; i < pAdapterInfo->AddressLength; i++)
                     {
-                        hwaddr.push_back((uint8_t)pAdapterInfo->Address[i]);
+                        hwaddr.push_back((uint_fast8_t)pAdapterInfo->Address[i]);
                     }
 
                     unsigned long localinterfaceindex = pAdapterInfo->Index;
-                    uint32_t bitmask = SchizoConverter(pAdapterInfo->IpAddressList.IpMask.String);
-                    uint32_t bitipaddr = SchizoConverter(pAdapterInfo->IpAddressList.IpAddress.String);
-                    uint32_t netaddr = bitipaddr & bitmask;        //Calculate network address
-                    uint32_t wildcardmask = ~bitmask;
-                    uint32_t broadcastaddr = netaddr | wildcardmask;   //Calculate network broadcast address
+                    uint_fast32_t bitmask = SchizoConverter(pAdapterInfo->IpAddressList.IpMask.String);
+                    uint_fast32_t bitipaddr = SchizoConverter(pAdapterInfo->IpAddressList.IpAddress.String);
+                    uint_fast32_t netaddr = bitipaddr & bitmask;        //Calculate network address
+                    uint_fast32_t wildcardmask = ~bitmask;
+                    uint_fast32_t broadcastaddr = netaddr | wildcardmask;   //Calculate network broadcast address
 
                     bool interfaceexists = false;
                     for (int l = 0; l < DEVS.size(); l++)
@@ -160,7 +182,7 @@ void getDevices()
     free(AdapterInfo);
 }
 
-void sendarp(const WinDev localstruct, const std::string destinationv4, std::vector <uint8_t>& inputvec) //[IN] WinDev, [IN] std::string IPV4, [OUT] std::vector uint8_t
+void sendarp(const WinDev localstruct, const std::string destinationv4, std::vector <uint_fast8_t>& inputvec) //[IN] WinDev, [IN] std::string IPV4, [OUT] std::vector uint_fast8_t
 {
     IPAddr SourceADR = inet_addr(localstruct.ipaddr.c_str());
     IPAddr DestIp = inet_addr(destinationv4.c_str());
@@ -177,10 +199,10 @@ void sendarp(const WinDev localstruct, const std::string destinationv4, std::vec
             unsigned int id = ((int)addrlen - 1);
             for (unsigned int i = 0; i < id; i++)
             {
-                inputvec.push_back((uint8_t)bPhysAddr[i]);
+                inputvec.push_back((uint_fast8_t)bPhysAddr[i]);
                 std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)bPhysAddr[i] << ":";
             }
-            inputvec.push_back((uint8_t)bPhysAddr[id]);
+            inputvec.push_back((uint_fast8_t)bPhysAddr[id]);
             std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)bPhysAddr[id] << std::endl;
         }
         else
@@ -219,7 +241,7 @@ void sendarp(const WinDev localstruct, const std::string destinationv4, std::vec
 
 WinDev FindAppropriateDevice(const std::vector <WinDev> inputvec, const std::string DestIp)
 {
-    uint32_t reformatedDestIP = SchizoConverter(DestIp);
+    uint_fast32_t reformatedDestIP = SchizoConverter(DestIp);
     for (int i = 0; i < inputvec.size(); i++)
     {
         if ((inputvec[i].bitmask & reformatedDestIP) == inputvec[i].netaddress)
@@ -247,4 +269,106 @@ WinDev FindAppropriateDeviceByMac(const std::vector <WinDev> inputvec, const std
     }
     std::cerr << "Wasn't able to find an output device with matching Source MAC. Check if passed MAC is all lowercase, and if there is any typo" << std::endl;
     return { "", "", {NULL},0,0,0,0,0 }; //We probably should use default GW if interface wasn't found
+}
+
+
+
+uint_fast8_t ComparePayloads(pcpp::PayloadLayer payload1, pcpp::PayloadLayer payload2)     //0 = equal, 1 = not equal, 2 = len(p1)>len(p2), 3 = len(p1)<len(p2)
+{
+    uint_fast64_t len1 = payload1.getPayloadLen();
+    uint_fast64_t len2 = payload2.getPayloadLen();
+    if (len1 == len2)
+    {
+        std::vector <uint8_t> vec1 = payloadtovec(payload1);
+        std::vector <uint8_t> vec2 = payloadtovec(payload2);
+        bool vecequality = true;
+        for (unsigned int i = 0; i < len1; i++)
+        {
+            if (vec1.at(i) != vec2.at(i))
+            {
+                vecequality = false;
+                break;
+            }
+        }
+        if (true == vecequality)
+        {
+            return 0;
+        }
+        return 1;
+    }
+    else
+    {
+        if (len1 > len2)
+        {
+            return 2;
+        }
+        return 3;
+    }
+}
+
+uint_fast8_t DestroySingleMapping(std::string dsDMAC, std::string dsGWMAC, std::string dsDADDR, WinDev dsOut, bool tcp, uint_fast16_t dsinternalport, std::string dsDGWAY, uint_fast16_t dsGWlistenport)
+{
+    //A client requests explicit deletion of a mapping by sending a message to the NAT gateway requesting the mapping, with the Requested Lifetime in Seconds set to zero. 
+    //The Suggested External Port MUST be set to zero by the client on sending, and MUST be ignored by the gateway on reception.
+    return sendspoof(dsDMAC, dsGWMAC, dsDADDR, dsOut, tcp, dsinternalport, (uint_fast16_t) 0, dsDGWAY, dsGWlistenport, (uint_fast32_t)0);
+}
+
+uint_fast8_t DestroyAllMappings(std::string dsDMAC, std::string dsGWMAC, std::string dsDADDR, WinDev dsOut, bool tcp, std::string dsDGWAY, uint_fast16_t dsGWlistenport)
+{
+    //A client can request the explicit deletion of all its UDP or TCP mappings by sending the same deletion request to the NAT gateway with the external port, internal port, and lifetime set to zero.
+    return sendspoof(dsDMAC, dsGWMAC, dsDADDR, dsOut, tcp, (uint_fast16_t)0, (uint_fast16_t)0, dsDGWAY, dsGWlistenport, (uint_fast32_t)0);
+}
+
+
+uint_fast8_t RemoveCreatedMappings(std::vector <pcpp::Packet> &packetvector, std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev lsOut, std::string lsDGWAY, uint_fast16_t lsGWlistenport)
+{
+    pcpp::IPv4Address testv4(lsOut.ipaddr);
+    if (true == testv4.isValid())
+    {
+        pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(testv4);
+        if (nullptr == dev)
+        {
+            std::cerr << "Couldn't find interface by provided IP address or name" << std::endl;
+            return 201;
+        }
+        if (!dev->open())
+        {
+            std::cerr << "Couldn't open the device." << std::endl;
+            return 202;
+        }
+        else
+        {
+            for (int i = 0; i < packetvector.size(); i++)
+            {
+                uint8_t* pltest = packetvector.at(i).getLayerOfType<pcpp::PayloadLayer>()->getPayload();
+                unsigned int z = SentPackets.at(i).getLastLayer()->getDataLen();
+               // uint8_t* ar = new uint8_t[z];
+                pltest[6] = 0; //ExPort MSB
+                pltest[7] = 0; //LSB
+
+                pltest[8] = 0; //Lifetime MSB
+                pltest[9] = 0;
+                pltest[10] = 0;
+                pltest[11] = 0; //LSB
+            
+                packetvector.at(i).computeCalculateFields();
+                dev->sendPacket(&packetvector.at(i));
+            }
+            return 0;
+        }
+    }
+    std::cerr << "Host address didn't pass the validation check. Aborting..." << std::endl;
+    return 322;
+}
+
+uint_fast8_t PrintPayloadFromPacket(pcpp::Packet packet)
+{
+    uint8_t* ppayload = packet.getLayerOfType<pcpp::PayloadLayer>()->getPayload();
+    uint8_t dlen = packet.getLayerOfType<pcpp::PayloadLayer>()->getPayloadLen();
+    std::cout << std::endl << "Payload print:";
+    for (int i = 0; i < dlen; i++)
+    {
+        std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)ppayload[i] << "-";
+    }
+    return 0;
 }

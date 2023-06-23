@@ -3,7 +3,7 @@
 #define usagetext  "Usage: " << std::endl \
 << "-help  - Shows this message." << std::endl \
 << "-DA xxx.xxx.xxx.xxx  - IPv4 of host we will be impersonating (REQUIRED)" << std::endl \
-<< "-PH xxxxx  -  Port on the host, who we are impersonating (REQUIRED)" << std::endl \
+<< "-PH xxxxx  -  Port on the host, who we are impersonating (REQUIRED in creating mode)" << std::endl \
 << "-PO xxxxx  - Port on the GateWay (Optional, defaults to specified host port)" << std::endl \
 << "-T xxxxxxxxx  - Time of the binding in seconds: 0 for infinite, the max value is 2^32. (Optional, defaults to 7200)" << std::endl \
 << "-TCP  - Specifiy to create TCP mapping instead of UDP (Optional)" << std::endl \
@@ -12,18 +12,29 @@
 << "-GW xxx.xxx.xxx.xxx  - IPv4 of the NAT-PMP Gateway (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl \
 << "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC address (Optional, but host must be reachable with NetBios)" << std::endl \
 << "-GM xx:xx:xx:xx:xx:xx  - MAC address of Gateway in the broadcast domain, that is the next hop (Optional, but gateway must be reachable with NetBios)" << std::endl \
-<< "-SM xx:xx:xx:xx:xx:xx  - MAC address of output interface (Optional, if host in the same subnet as the target)" << std::endl; 
+<< "-SM xx:xx:xx:xx:xx:xx  - MAC address of output interface (Optional, if host in the same subnet as the target)" << std::endl << std::endl \
+<< "[Modes] (Optional)" << std::endl \
+<< "-A (Default)  - Single Mapping creating mode" << std::endl \
+<< "-H  - Hold mode" << std::endl \
+<< "-R  - Single mapping removal mode" << std::endl \
+<< "-RALL  - All mappings removal mode" << std::endl \
+<< "If no mode argument is provided, mapping creation mode (-A) will be used instead" << std::endl;
+
+
+#define mutexclmodes "Error: Arguments ""-A"", ""-H"", ""-R"" and ""-RALL"" are mutually exclusive. You should only use one of them." << std::endl;
+
 
 std::vector<std::string> launcharguments;
+
 int LaunchOptionsProcessing(int localargc, char* localargv[])
 {
-    if (21 < localargc)  // 8*2 + TCP + 1 + 1
+    if (22 < localargc)  // 8*2 + TCP + 1 + 1
     {
         throw std::runtime_error("too many input parameters!");
     }
 
 
-    if (5 > localargc)   // (PH + DA)*2 + 1
+    if (4 > localargc)   // (DA)*2 + RALL + 1 
     {
         std::cerr << std::endl << "Error: Not enough arguments!" << std::endl;
         std::cerr << usagetext;
@@ -44,7 +55,7 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     if (true == has_option(launcharguments, "-PH")) //Host port argument handling
     {
         std::string HostPortString = get_option(launcharguments, "-PH");
-        uint16_t retloc = portcheck(HostPortString, "host");
+        uint_fast16_t retloc = portcheck(HostPortString, "host");
         if (0 != retloc)
         {
             internalport = retloc;
@@ -56,8 +67,11 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     }
     else
     {
-        std::cerr << std::endl << "Error: Missing port argument. Please specify host's port with \"-PH\"." << std::endl;
-        return EXIT_FAILURE;
+        if (false == has_option(launcharguments, "-RALL"))
+        {
+            std::cerr << std::endl << "Error: Missing port argument. Please specify host's port with \"-PH\"." << std::endl;
+            return EXIT_FAILURE;
+        }
     }
     std::cout << "Host port is " << internalport << ". ";
 
@@ -85,10 +99,62 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     std::cout << "Target's address is " << DADDR << "; " << std::endl;
 
 
+    if (true == has_option(launcharguments, "-H"))
+    {
+        if (0 == progmode)
+        {
+            progmode = 1; //Hold mode
+        }
+        else
+        {
+            std::cerr << mutexclmodes;
+            return EXIT_FAILURE;
+        }
+    }
+
+
+    if (true == has_option(launcharguments, "-R"))
+    {
+        if (0 == progmode)
+        {
+            progmode = 2; //Remove-specific-mapping mode
+        }
+        else
+        {
+            std::cerr << mutexclmodes;
+            return EXIT_FAILURE;
+        }
+    }
+
+
+    if (true == has_option(launcharguments, "-RALL"))
+    {
+        if (0 == progmode)
+        {
+            progmode = 3; //Mode that removes all mappings associated with host
+        }
+        else
+        {
+            std::cerr << mutexclmodes;
+            return EXIT_FAILURE;
+        }
+    }
+
+
+    if (true == has_option(launcharguments, "-A"))
+    {
+        if (0 != progmode)
+        {
+            std::cerr << mutexclmodes;
+            return EXIT_FAILURE;
+        }
+    }
+
+
     if (true == has_option(launcharguments, "-PO")) //Gateway binding port argument handling 
     {
         std::string ExternalPortString = get_option(launcharguments, "-PO");
-        uint16_t retloc = portcheck(ExternalPortString, "gateway");
+        uint_fast16_t retloc = portcheck(ExternalPortString, "gateway");
         if (0 != retloc)
         {
             externalport = retloc;
@@ -106,16 +172,17 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     std::cout << "Gateway port for binding is " << externalport << ";" << std::endl;
 
 
-
     istcp = has_option(launcharguments, "-TCP"); // TCP/UDP argument handling
 
     both = has_option(launcharguments, "-BOTH"); // TCP/UDP argument handling
 
-    if (istcp == true == both)
+
+    if ((true ==istcp) and (true== both))
     {
         std::cerr << std::endl << "Error: -TCP and -BOTH are mutually exclusive. You should only specify one.";
         return EXIT_FAILURE;
     }
+
 
     if (true == has_option(launcharguments, "-DM")) //Destination MAC argument handling
     {

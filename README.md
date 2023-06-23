@@ -26,9 +26,15 @@ If you run the program behind NAT or from different subnet, the work depends on 
 * -GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351);
 * -GW xxx.xxx.xxx.xxx  - IPv4 of the NAT-PMP Gateway (Optional, defaults to IPv4 address of the gateway on the interface);
 * -DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC address (Optional, but host must be reachable with NetBios);
-* -GM xx:xx:xx:xx:xx:xx  - MAC address of Gateway in the broadcast domain, that is the next hop (Optional, but gateway must be reachable with NetBios);
+* -GM xx:xx:xx:xx:xx:xx  - MAC address of Gateway in the broadcast domain, that is the next hop (Optional in single broadcast domain, but gateway must be reachable with NetBios);
 * -SM xx:xx:xx:xx:xx:xx - MAC address of output interface (Optional, if host is in the same subnet as the target);
 
+## [Modes] (Optional)
+* -A (Default)  - Single Mapping creating mode
+* -H  - Hold mode (WORK IN PROGRESS);
+* -R  - Single mapping removal mode;
+* -RALL  - All mappings removal mode;
+* If no mode argument is provided, mapping creation mode (-A) will be used instead;
 
 # Examples
 In most of the cases these will be enough:
@@ -48,6 +54,16 @@ If, for some reason, the required data cannot be fetched, user must provide it m
 
 Providing additional data with launch arguments also increases speed of the programm, while also reducing network presence.
 
+* Removing UDP:
+`NAT-PMP-Spoofer.exe -R -DA 192.168.1.228 -PH 80`
+
+* Removing TCP+UDP:
+`NAT-PMP-Spoofer.exe -R -DA 192.168.1.228 -PH 80 -BOTH`
+
+* Removing All NAT-PMP mappings, associated with host:
+`NAT-PMP-Spoofer.exe -RALL -DA 192.168.1.228`
+
+
 # Q&A
 * Q: Can it create TCP mappings? 
 
@@ -58,9 +74,7 @@ Yes, that's the whole point of this project.
 * Q: How can I be sure that the mapping is really created?
 
 There is no feature for checking right now, but you can use UPnP Wizard (may not show mapping lifetime correctly) or you can check NAT-PMP leases on your GateWay (e.g. /tmp/upnp.leases)
-* Q: How can I remove mapping?
 
-There is no such feature right now, but you can still do it with UPnP Wizard or upnp.leases file.
 * Q: Windows Defender quarantines the program with "This program is dangerous and executes commands from an attacker"...
 
 You can check binary file with Virus Total (http://virustotal.com) or manually review the code and compile it. There is no RCE, and the only shadow thing in an entire project - is spoofing.
@@ -74,7 +88,9 @@ Both UPNP and NAT-PMP aren't designed to work under such conditions. You can sti
 
 # Upcoming features
 - [ ] Viewing mappings;
-- [ ] Removing mappings;
+- [X] Removing mappings;
+- [ ] Topology images for examples;
 - [ ] Endianness independent code for ARM-based Windows systems;
+- [ ] Configuration via files;
 - [ ] Static builds;
 - [ ] CI/CD;

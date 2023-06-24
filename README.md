@@ -58,6 +58,7 @@ Providing additional data with launch arguments increases speed of the programm,
 
 ## Creating and auto-renewing mappings
 Mappings will be renewed halfway through, as RFC proposes. Due to busy waiting, it will load the CPU.
+
 `NAT-PMP-Spoofer.exe -H -DA 192.168.1.228 -PH 9999 -T 1234`
 
 ## Removing mappings
@@ -95,8 +96,8 @@ Both UPNP and NAT-PMP aren't designed to work under such conditions. You can sti
 
 # Upcoming features
 - [ ] Viewing mappings;
-- [x] Auto-prolongation for the hold mode;
-- [X] Multi-threading for the hold mode;
+- [X] Auto-prolongation for the hold mode;
+- [ ] Multi-threading for the hold mode;
 - [ ] Topology images for examples;
 - [ ] Endianness independent code for ARM-based Windows systems;
 - [ ] Configuration via files;

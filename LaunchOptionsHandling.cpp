@@ -216,6 +216,16 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
         SMAC.clear();
     }
 
+    if (true == has_option(launcharguments, "-T")) //Source MAC argument handling
+    {
+        std::string lifetimestring = get_option(launcharguments, "-T");
+        mappinglifetime = stoi(lifetimestring);
+        std::cout << "Mapping lifetime is set to " << mappinglifetime << " seconds." << std::endl;
+    }
+    else
+    {
+        SMAC.clear();
+    }
 
     if (true == has_option(launcharguments, "-GW")) //Gateway IPv4 argument handling
     {

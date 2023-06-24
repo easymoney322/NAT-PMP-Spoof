@@ -7,10 +7,13 @@
 #include <vector>
 #include <algorithm>
 #include <PayloadLayer.h>
+#include <chrono>
+#include <Packet.h>
 
 char DetermineDelimiter(std::string inputstring, uint_fast8_t expectedblocksize);
 int MakeMeIpv4(uint_fast32_t input, unsigned int& a, unsigned int& b, unsigned int& c, unsigned int& d);
 uint_fast16_t portcheck(const std::string inputstring, const char* whos);
+uint_fast32_t GetMappingLifetimeFromPacket(pcpp::Packet lspacket);
 uint_fast32_t SchizoConverter(std::string inputstring);
 
 void PrintIPV4(const char* msg, uint_fast32_t input);

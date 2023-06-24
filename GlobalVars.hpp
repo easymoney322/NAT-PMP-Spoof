@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <packet.h>
+#include <chrono>
 extern bool istcp;
 extern bool both;
 
@@ -18,9 +19,11 @@ extern uint_fast16_t gwlistenerport; //Port that NAT-PMP-capable gateway listeni
 extern uint_fast16_t internalport;
 extern uint_fast16_t externalport;
 extern uint_fast32_t mappinglifetime; //Recommended to be 2 hrs (https://datatracker.ietf.org/doc/html/rfc6886)
+
 extern std::vector <pcpp::Packet> SentPackets;
 
-extern struct WinDev {
+extern struct WinDev 
+{
     std::string ipaddr{ "" }; //IPv4 address of an interface as as tring
     std::string gwayip{ "" }; //DGWAY as a string
     std::vector<uint_fast8_t> macaddrvec; //MAC address of an interface
@@ -33,4 +36,21 @@ extern struct WinDev {
 };
 extern WinDev OutputInterface;
 extern std::vector<WinDev> DEVS;
+
+extern struct ProtoPort
+{
+    std::string proto{ "UDP" };
+    uint_fast16_t portnumin{ 0 };
+    uint_fast16_t portnumout{ 0 };
+    std::string UpdateText{ "" };
+};
+extern struct ProlongationStruct 
+{
+    pcpp::Packet Packet;
+    uint_fast64_t TimestampOfNextUpdate;
+    std::chrono::time_point <std::chrono::system_clock> chronotimepoint;
+    ProtoPort ProtocolAndPort;
+};
+
+extern std::vector <ProlongationStruct> ProlongationList;
 #endif

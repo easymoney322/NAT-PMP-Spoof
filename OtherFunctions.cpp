@@ -36,7 +36,6 @@ BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
         else
         {
             std::cerr << "An error occured during mapping removal process" << std::endl;
-
         }
         return TRUE;
     }
@@ -96,3 +95,4 @@ BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
         return FALSE;
     }
 }
+

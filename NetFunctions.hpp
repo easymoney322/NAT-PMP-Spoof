@@ -16,6 +16,8 @@
 #include "GlobalVars.hpp"
 WinDev FindAppropriateDevice(const std::vector <WinDev> inputvec, const std::string DestIp);
 WinDev FindAppropriateDeviceByMac(const std::vector <WinDev> inputvec, const std::string SMAC);
+ProtoPort GetProtoAndPortFromPayloadLayer(pcpp::PayloadLayer lspayload);
+ProtoPort GetProtoAndPortFromPacket(pcpp::Packet packet);
 void getDevices();
 void sendarp(WinDev localstruct, std::string destinationv4, std::vector <uint_fast8_t>& inputvec); //[IN] WinDev, [IN] std::string IPV4, [OUT] std::vector uint_fast8_t
 uint_fast8_t ComparePayloads(pcpp::PayloadLayer payload1, pcpp::PayloadLayer payload2); //0 = equal, 1 = not equal, 2 = len(p1)>len(p2), 3 = len(p1)<len(p2)
@@ -24,3 +26,12 @@ uint_fast8_t DestroySingleMapping(std::string dsDMAC, std::string dsGWMAC, std::
 uint_fast8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev Out, bool lstcp, uint_fast16_t lsinternalport, uint_fast16_t lsexternalport, std::string lsDGWAY, uint_fast16_t lsGWlistenport, uint_fast32_t mappingtime);
 uint_fast8_t PrintPayloadFromPacket(pcpp::Packet packet);
 uint_fast8_t RemoveCreatedMappings(std::vector <pcpp::Packet>& packetvector, WinDev lsOut);
+
+uint_fast8_t SendPacketWrap(pcpp::Packet& lspacket, WinDev lsOut);
+uint_fast64_t CreateTimestampOfNextUpdate(pcpp::Packet packet);
+uint_fast64_t CreateTimestampOfNextUpdate(pcpp::PayloadLayer payload);
+uint_fast64_t CreateTimestampOfNextUpdate(uint32_t lifetime);
+std::chrono::time_point <std::chrono::system_clock> CreateTimepointOfNextUpdate(pcpp::PayloadLayer payload);
+uint_fast8_t WatchList();
+
+

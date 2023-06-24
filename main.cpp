@@ -24,6 +24,7 @@
 #pragma comment(lib, "Pcap++.lib")
 
 
+
 int main(int argc, char* argv[])
 {
     if (EXIT_FAILURE == LaunchOptionsProcessing(argc, argv)  ) //Handling of launch arguments
@@ -139,9 +140,16 @@ int main(int argc, char* argv[])
             {
                 if (SetConsoleCtrlHandler(CtrlHandler, TRUE))
                 {
-                    std::cout << "Press CTRL+C, CTRL+Break, or close the window to exit and delete all created mappings" << std::endl;
+                    std::cout << std::endl << "Program has entered updating state." << std::endl << "Press CTRL + C, CTRL + Break, or close the window to exit with deletion of all created mappings." << std::endl << std::endl;
+                    uint8_t loopbreak;
                     while (true)
                     {
+                        loopbreak = WatchList();
+                        if (0 != loopbreak)
+                        {
+                            std::cout << "No mappings left to renew!" << std::endl;
+                            break;
+                        }
                         std::this_thread::sleep_for(std::chrono::seconds(5));
                     }
                 }
@@ -195,7 +203,9 @@ int main(int argc, char* argv[])
         }
     }
 
-
-    system("PAUSE");
+    if (1 != progmode)
+    {
+        system("PAUSE");
+    }
     return 0;
 }

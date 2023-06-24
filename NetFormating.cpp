@@ -202,3 +202,11 @@ char DetermineDelimiter(std::string inputstring, uint_fast8_t expectedblocksize)
     g = '\0';
     return g;
 }
+
+uint_fast32_t GetMappingLifetimeFromPacket(pcpp::Packet lspacket)
+{
+    uint8_t* ppayload = lspacket.getLayerOfType<pcpp::PayloadLayer>()->getPayload();
+    uint_fast32_t* packetlifetime = (uint_fast32_t*)&ppayload[8];
+    uint_fast32_t hostorder = ntohl(*packetlifetime);
+    return hostorder;
+}

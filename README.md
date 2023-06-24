@@ -37,6 +37,8 @@ If you run the program behind NAT or from different subnet, the work depends on 
 * If no mode argument is provided, mapping creation mode (-A) will be used instead;
 
 # Examples
+
+## Creating mappings
 In most of the cases these will be enough:
 * UDP:
 `NAT-PMP-Spoofer.exe -DA 192.168.1.228 -PH 9999`
@@ -52,8 +54,13 @@ Both commands requrie additional data that will be fetched with mechanisms such 
 If, for some reason, the required data cannot be fetched, user must provide it manually by launch arguments:
 `NAT-PMP-Spoofer.exe -DA 192.168.1.228  -DM b1:6b:00:b5:ba:be  -PH 80 -PO 8080  -TCP  -GW 192.168.1.1  -GM c1:5c:0d:06:1e  -SM ba:be:de:fe:c8:ed -T 0`
 
-Providing additional data with launch arguments also increases speed of the programm, while also reducing network presence.
+Providing additional data with launch arguments increases speed of the programm, while also reducing network presence.
 
+## Creating and auto-renewing mappings
+Mappings will be renewed halfway through, as RFC proposes. Due to busy waiting, it will load the CPU.
+`NAT-PMP-Spoofer.exe -H -DA 192.168.1.228 -PH 9999 -T 1234`
+
+## Removing mappings
 * Removing UDP:
 `NAT-PMP-Spoofer.exe -R -DA 192.168.1.228 -PH 80`
 
@@ -88,7 +95,8 @@ Both UPNP and NAT-PMP aren't designed to work under such conditions. You can sti
 
 # Upcoming features
 - [ ] Viewing mappings;
-- [ ] Auto-prolongation for hold mode;
+- [x] Auto-prolongation for the hold mode;
+- [X] Multi-threading for the hold mode;
 - [ ] Topology images for examples;
 - [ ] Endianness independent code for ARM-based Windows systems;
 - [ ] Configuration via files;

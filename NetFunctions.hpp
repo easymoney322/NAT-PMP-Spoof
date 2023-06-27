@@ -26,12 +26,12 @@ uint_fast8_t DestroySingleMapping(std::string dsDMAC, std::string dsGWMAC, std::
 uint_fast8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev Out, bool lstcp, uint_fast16_t lsinternalport, uint_fast16_t lsexternalport, std::string lsDGWAY, uint_fast16_t lsGWlistenport, uint_fast32_t mappingtime);
 uint_fast8_t PrintPayloadFromPacket(pcpp::Packet packet);
 uint_fast8_t RemoveCreatedMappings(std::vector <pcpp::Packet>& packetvector, WinDev lsOut);
-
 uint_fast8_t SendPacketWrap(pcpp::Packet& lspacket, WinDev lsOut);
+uint_fast8_t WatchList();
 uint_fast64_t CreateTimestampOfNextUpdate(pcpp::Packet packet);
 uint_fast64_t CreateTimestampOfNextUpdate(pcpp::PayloadLayer payload);
 uint_fast64_t CreateTimestampOfNextUpdate(uint32_t lifetime);
 std::chrono::time_point <std::chrono::system_clock> CreateTimepointOfNextUpdate(pcpp::PayloadLayer payload);
-uint_fast8_t WatchList();
+
 
 

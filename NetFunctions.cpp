@@ -304,6 +304,7 @@ uint_fast8_t RemoveCreatedMappings(std::vector <pcpp::Packet> &packetvector, Win
                 packetvector.at(i).computeCalculateFields();
                 dev->sendPacket(&packetvector.at(i));
             }
+            ProlongationList.clear(); //We must add IDs to packets in the vectors, and remove them accordingly with vector::erase 
             return 0;
         }
     }
@@ -422,8 +423,14 @@ uint_fast8_t WatchList()
             }
 
         }
+        return 0;
     }
-    return 0;
+    if (0 == ProlongationList.size())
+    {
+        return 1;
+    }
+
+   
 }
 
 uint_fast8_t SendPacketWrap(pcpp::Packet &lspacket, WinDev lsOut)

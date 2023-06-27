@@ -50,6 +50,7 @@ extern struct ProlongationStruct
     uint_fast64_t TimestampOfNextUpdate;
     std::chrono::time_point <std::chrono::system_clock> chronotimepoint;
     ProtoPort ProtocolAndPort;
+    uint_fast64_t PacketID{ 0 };
 };
 
 extern std::vector <ProlongationStruct> ProlongationList;

@@ -325,19 +325,6 @@ uint_fast8_t PrintPayloadFromPacket(pcpp::Packet packet)
 }
 
 
-uint_fast64_t CreateTimestampOfNextUpdate(pcpp::PayloadLayer payload)
-{
-    uint8_t* pdata = payload.getPayload();
-    uint_fast32_t* packetlifetime = (uint_fast32_t*)&pdata[8];
-    uint_fast32_t hostorder = ntohl(*packetlifetime);
-    hostorder /= 2;  //Time till refresh in seconds
-    uint_fast64_t systime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count(); //Current time
-    uint_fast64_t timeofrefresh = systime + hostorder; //Time of required update
-
-    return timeofrefresh;
-}
-
-
 std::chrono::time_point <std::chrono::system_clock> CreateTimepointOfNextUpdate(pcpp::PayloadLayer payload)
 {
     uint8_t* pdata = payload.getPayload();
@@ -352,31 +339,14 @@ std::chrono::time_point <std::chrono::system_clock> CreateTimepointOfNextUpdate(
 }
 
 
-
-uint_fast64_t CreateTimestampOfNextUpdate(pcpp::Packet packet)
-{
-    uint8_t* ppayload = packet.getLayerOfType<pcpp::PayloadLayer>()->getPayload();
-    uint_fast64_t retval = CreateTimestampOfNextUpdate(*ppayload);
-    return retval;
-}
-
-uint_fast64_t CreateTimestampOfNextUpdate(uint32_t lifetime)
-{
-
-    uint_fast64_t secondstillupdate = lifetime / 2;
-    uint_fast64_t systime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count(); //Current time
-    uint_fast64_t timeofrefresh = systime + secondstillupdate; //Time of required update
-
-    return timeofrefresh;
-}
-
 ProtoPort GetProtoAndPortFromPayloadLayer(pcpp::PayloadLayer lspayload)
 {
     uint8_t* pdata = lspayload.getPayload();
-    uint8_t opmode = pdata[1];
+    uint_fast8_t opmode = pdata[1];
     std::string retstr;
-    uint16_t retint = 0;
-    uint16_t retext = 0;
+    uint_fast16_t retint = 0;
+    uint_fast16_t retext = 0;
+    uint_fast32_t maptime = 1;
     if (1 == opmode)
     {
         retstr = "UDP";
@@ -392,10 +362,12 @@ ProtoPort GetProtoAndPortFromPayloadLayer(pcpp::PayloadLayer lspayload)
 
     uint_fast16_t* portnumint = (uint_fast16_t*)&pdata[4]; //4,5 = INT
     retint = ntohs(*portnumint);
-    uint_fast16_t* portnumext = (uint_fast16_t*)&pdata[6]; //4,5 = INT
+    uint_fast16_t* portnumext = (uint_fast16_t*)&pdata[6]; //6,7 = EXT
     retext = ntohs(*portnumext);
-    std::string Updstr = "Updated mapping for " + retstr + '-' + std::to_string(retint) + '-' + std::to_string(retext) + '.';
-    return { retstr,retint, retext, Updstr };
+    uint_fast32_t* maplifetime = (uint_fast32_t*)&pdata[8];
+    maptime = ntohl(*maplifetime);
+    std::string Updstr = "Updated mapping for " + retstr + '-' + std::to_string(retint) + '-' + std::to_string(retext) + '-' + std::to_string(maptime) + '.';
+    return { retstr,retint, retext, maptime, Updstr };
 }
 
 ProtoPort GetProtoAndPortFromPacket(pcpp::Packet packet)
@@ -478,7 +450,6 @@ uint_fast8_t SendPacketWrap(pcpp::Packet &lspacket, WinDev lsOut)
                         {
                             alreadyexists = true;
                             std::chrono::time_point <std::chrono::system_clock> UpdateTime = CreateTimepointOfNextUpdate(lspayload);
-                            ProlongationList.at(sp).TimestampOfNextUpdate = CreateTimestampOfNextUpdate(lspacket);
                             ProlongationList.at(sp).chronotimepoint = UpdateTime;
                             std::time_t datetimerefr = std::chrono::system_clock::to_time_t(UpdateTime);
                             std::string str1 = ProlongationList.at(sp).ProtocolAndPort.UpdateText;
@@ -501,8 +472,7 @@ uint_fast8_t SendPacketWrap(pcpp::Packet &lspacket, WinDev lsOut)
                     if (false == alreadyexists)
                     {
                         ProtoPort lsportstruc = GetProtoAndPortFromPayloadLayer(lspayload);
-                        std::string Updstr= "Updated mapping for " + lsportstruc.proto + '-' + std::to_string(lsportstruc.portnumin) + '-' + std::to_string(lsportstruc.portnumout) + '.';
-                        ProlongationList.push_back({ lspacket, CreateTimestampOfNextUpdate(mappinglifetime),CreateTimepointOfNextUpdate(lspayload),lsportstruc});
+                        ProlongationList.push_back({ lspacket ,CreateTimepointOfNextUpdate(lspayload),lsportstruc});
                     }
                 }
             }

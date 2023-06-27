@@ -28,9 +28,6 @@ uint_fast8_t PrintPayloadFromPacket(pcpp::Packet packet);
 uint_fast8_t RemoveCreatedMappings(std::vector <pcpp::Packet>& packetvector, WinDev lsOut);
 uint_fast8_t SendPacketWrap(pcpp::Packet& lspacket, WinDev lsOut);
 uint_fast8_t WatchList();
-uint_fast64_t CreateTimestampOfNextUpdate(pcpp::Packet packet);
-uint_fast64_t CreateTimestampOfNextUpdate(pcpp::PayloadLayer payload);
-uint_fast64_t CreateTimestampOfNextUpdate(uint32_t lifetime);
 std::chrono::time_point <std::chrono::system_clock> CreateTimepointOfNextUpdate(pcpp::PayloadLayer payload);
 
 

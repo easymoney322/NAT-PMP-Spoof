@@ -42,12 +42,12 @@ extern struct ProtoPort
     std::string proto{ "UDP" };
     uint_fast16_t portnumin{ 0 };
     uint_fast16_t portnumout{ 0 };
+    uint_fast32_t maptime{ 1 };
     std::string UpdateText{ "" };
 };
 extern struct ProlongationStruct 
 {
     pcpp::Packet Packet;
-    uint_fast64_t TimestampOfNextUpdate;
     std::chrono::time_point <std::chrono::system_clock> chronotimepoint;
     ProtoPort ProtocolAndPort;
     uint_fast64_t PacketID{ 0 };

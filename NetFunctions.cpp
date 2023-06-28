@@ -1,5 +1,7 @@
 #include "NetFunctions.hpp"
 #pragma warning(disable : 4996)
+
+
 uint_fast8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDADDR, WinDev Out, bool lstcp, uint_fast16_t lsinternalport, uint_fast16_t lsexternalport, std::string lsDGWAY, uint_fast16_t lsGWlistenport, uint_fast32_t mappingtime)
 {
     /*
@@ -44,7 +46,7 @@ uint_fast8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDA
         {
             std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)lsbuffer[z] << '-';
         }
-        std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)lsbuffer[11] << std::endl;
+        std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)lsbuffer[11] << ";" << std::endl;
         std::cout << std::dec;
 
         pcpp::EthLayer newEthernetLayer(lsDMAC, lsGWMAC);
@@ -69,6 +71,7 @@ uint_fast8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDA
     std::cerr << "Wasn't able to allocate memory. Aborting..." << std::endl;
     return 323;
 }
+
 
 void getDevices()
 {
@@ -132,6 +135,7 @@ void getDevices()
     free(AdapterInfo);
 }
 
+
 void sendarp(const WinDev localstruct, const std::string destinationv4, std::vector <uint_fast8_t>& inputvec) //[IN] WinDev, [IN] std::string IPV4, [OUT] std::vector uint_fast8_t
 {
     IPAddr SourceADR = inet_addr(localstruct.ipaddr.c_str());
@@ -153,7 +157,7 @@ void sendarp(const WinDev localstruct, const std::string destinationv4, std::vec
                 std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)bPhysAddr[i] << ":";
             }
             inputvec.push_back((uint_fast8_t)bPhysAddr[id]);
-            std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)bPhysAddr[id] << std::endl;
+            std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)bPhysAddr[id] <<  ";" << std::endl;
         }
         else
             printf("Warning: SendArp completed successfully, but returned length=0\n");
@@ -189,6 +193,23 @@ void sendarp(const WinDev localstruct, const std::string destinationv4, std::vec
     }
 }
 
+
+WinDev FindDeviceBySourceIP(const std::vector <WinDev> inputvec, const std::string SourceIp)
+{
+    uint_fast32_t reformatedSourceIP = SchizoConverter(SourceIp);
+    for (int i = 0; i < inputvec.size(); i++)
+    {
+        if (reformatedSourceIP == inputvec[i].bitaddr)
+        {
+            std::cout << "Found appropriate interface (by source IPv4) at index=" << inputvec[i].interfaceindex << ";" << std::endl;
+            return inputvec[i];
+        }
+    }
+    std::cout << "Wasn't able to find output device from the same network." << std::endl;
+    return { "", "", {NULL},0,0,0,0,0 }; //We probably should use default GW if interface wasn't found
+}
+
+
 WinDev FindAppropriateDevice(const std::vector <WinDev> inputvec, const std::string DestIp)
 {
     uint_fast32_t reformatedDestIP = SchizoConverter(DestIp);
@@ -196,13 +217,14 @@ WinDev FindAppropriateDevice(const std::vector <WinDev> inputvec, const std::str
     {
         if ((inputvec[i].bitmask & reformatedDestIP) == inputvec[i].netaddress)
         {
-            std::cout << "Found appropriate interface at index=" << inputvec[i].interfaceindex << std::endl;
+            std::cout << "Found appropriate interface (by network address) at index=" << inputvec[i].interfaceindex << ";" << std::endl;
             return inputvec[i];
         }
     }
     std::cout << "Wasn't able to find output device from the same network." << std::endl;
     return { "", "", {NULL},0,0,0,0,0 }; //We probably should use default GW if interface wasn't found
 }
+
 
 WinDev FindAppropriateDeviceByMac(const std::vector <WinDev> inputvec, const std::string SMAC)
 {
@@ -370,12 +392,14 @@ ProtoPort GetProtoAndPortFromPayloadLayer(pcpp::PayloadLayer lspayload)
     return { retstr,retint, retext, maptime, Updstr };
 }
 
+
 ProtoPort GetProtoAndPortFromPacket(pcpp::Packet packet)
 {
     pcpp::PayloadLayer * ppayload = packet.getLayerOfType<pcpp::PayloadLayer>();
     ProtoPort retval = GetProtoAndPortFromPayloadLayer(*ppayload);
     return retval;
 }
+
 
 uint_fast8_t WatchList()
 {
@@ -405,6 +429,7 @@ uint_fast8_t WatchList()
    
 }
 
+
 uint_fast8_t SendPacketWrap(pcpp::Packet &lspacket, WinDev lsOut)
 {
     pcpp::IPv4Address testv4(lsOut.ipaddr);
@@ -424,7 +449,7 @@ uint_fast8_t SendPacketWrap(pcpp::Packet &lspacket, WinDev lsOut)
         else
         {
             dev->sendPacket(&lspacket);
-            if (1 == progmode) //Caching mappings is only needed in Hold mode
+            if ((1 == progmode) and (0 != externalport)) //Caching mappings is only needed in Hold mode
             {
                 bool alreadyexists = false;
                 pcpp::PayloadLayer lspayload = *(lspacket.getLayerOfType<pcpp::PayloadLayer>());
@@ -440,7 +465,7 @@ uint_fast8_t SendPacketWrap(pcpp::Packet &lspacket, WinDev lsOut)
                 {
                     SentPackets.push_back(lspacket);
                 }
-                uint32_t mappingtime = GetMappingLifetimeFromPacket(lspacket);
+                uint_fast32_t mappingtime = GetMappingLifetimeFromPacket(lspacket);
                 if (0 != mappingtime)
                 {
                     alreadyexists = false;

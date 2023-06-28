@@ -8,7 +8,7 @@
 #include <chrono>
 extern bool istcp;
 extern bool both;
-
+extern std::string SAv4;
 extern std::string SMAC; //Our MAC (Optional, might be reqired to determine output interface if target is in a different subnet)
 extern std::string DMAC; //MAC of device we will be impersonating (Optional)
 extern std::string GWMAC; //Gateway MAC (Optional)
@@ -19,7 +19,7 @@ extern uint_fast16_t gwlistenerport; //Port that NAT-PMP-capable gateway listeni
 extern uint_fast16_t internalport;
 extern uint_fast16_t externalport;
 extern uint_fast32_t mappinglifetime; //Recommended to be 2 hrs (https://datatracker.ietf.org/doc/html/rfc6886)
-
+extern uint_fast64_t sleeptime;
 extern std::vector <pcpp::Packet> SentPackets;
 
 extern struct WinDev 

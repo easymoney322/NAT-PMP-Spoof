@@ -4,15 +4,17 @@
 << "-help  - Shows this message." << std::endl \
 << "-DA xxx.xxx.xxx.xxx  - IPv4 of host we will be impersonating (REQUIRED)" << std::endl \
 << "-PH xxxxx  -  Port on the host, who we are impersonating (REQUIRED in creating mode)" << std::endl \
-<< "-PO xxxxx  - Port on the GateWay (Optional, defaults to specified host port)" << std::endl \
+<< "-PO xxxxx  - External port on the Gateway (Optional, defaults to specified host port)" << std::endl \
 << "-T xxxxxxxxx  - Time of the binding in seconds: 0 for infinite, the max value is 2^32. (Optional, defaults to 7200)" << std::endl \
 << "-TCP  - Specifiy to create TCP mapping instead of UDP (Optional)" << std::endl \
 << "-BOTH  - Specify to create both TCP and UDP mappings (Optional)" << std::endl \
 << "-GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351)" << std::endl \
 << "-GW xxx.xxx.xxx.xxx  - IPv4 of the NAT-PMP Gateway (Optional, defaults to IPv4 address of the gateway on the interface)" << std::endl \
+<< "-SA xxx.xxx.xxx.xxx  -IPv4 of output interfiace (Optional)." << std::endl \
 << "-DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC address (Optional, but host must be reachable with NetBios)" << std::endl \
 << "-GM xx:xx:xx:xx:xx:xx  - MAC address of Gateway in the broadcast domain, that is the next hop (Optional, but gateway must be reachable with NetBios)" << std::endl \
 << "-SM xx:xx:xx:xx:xx:xx  - MAC address of output interface (Optional, if host in the same subnet as the target)" << std::endl << std::endl \
+<< "-TS  - Sleep time in seconds for hold mode loop. (Optional, defaults to 5 sec)." << std::endl \
 << "[Modes] (Optional)" << std::endl \
 << "-A (Default)  - Single Mapping creating mode" << std::endl \
 << "-H  - Hold mode" << std::endl \
@@ -28,9 +30,9 @@ std::vector<std::string> launcharguments;
 
 int LaunchOptionsProcessing(int localargc, char* localargv[])
 {
-    if (22 < localargc)  // 8*2 + TCP + 1 + 1
+    if (23 < localargc)  // 8*2 + TCP + 1 + 1
     {
-        throw std::runtime_error("too many input parameters!");
+        throw std::runtime_error("Too many input parameters!");
     }
 
 
@@ -104,6 +106,16 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
         if (0 == progmode)
         {
             progmode = 1; //Hold mode
+            if (true == has_option(launcharguments, "-TS"))
+            {
+                int_fast64_t tempsleep = std::stoll(get_option(launcharguments, "-TS"));
+                if (tempsleep > 0)
+                {
+                    sleeptime = std::stoull(get_option(launcharguments, "-TS"));
+                    std::cout << "Set thread sleep time to " << (int)sleeptime << " seconds;";
+                }
+                
+            }
         }
         else
         {
@@ -166,10 +178,10 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     }
     else
     {
-        std::cout << std::endl << "Gateway port wasn't specified. Using the same port...  ";
+        std::cout << std::endl << "External port wasn't specified. Using the same port...  " << std::endl;
         externalport = internalport;
     }
-    std::cout << "Gateway port for binding is " << externalport << ";" << std::endl;
+    std::cout << "Gateway (external) port for the binding is set to" << externalport << ";" << std::endl;
 
 
     istcp = has_option(launcharguments, "-TCP"); // TCP/UDP argument handling
@@ -210,22 +222,38 @@ int LaunchOptionsProcessing(int localargc, char* localargv[])
     {
         mac_testerproto("-SM", SMAC);
         std::cout << "Source MAC address is set to " << SMAC << ";" << std::endl;
+        OutputInterface = FindAppropriateDeviceByMac(DEVS, SMAC);
     }
     else
     {
         SMAC.clear();
+        if (true == has_option(launcharguments, "-SA"))
+        {
+            std::string sourcev4string = get_option(launcharguments, "-SA");
+            pcpp::IPv4Address v4pcap(sourcev4string);
+            if (true == v4pcap.isValid())
+            {
+                SAv4 = sourcev4string;
+                OutputInterface = FindDeviceBySourceIP(DEVS, sourcev4string);
+                SMAC = MacVecToStringWithDelimiters(OutputInterface.macaddrvec, ':');
+                std::cout << "Source MAC address is set to " << SMAC << ";" << std::endl;
+            }
+            else
+            {
+                std::cerr << "Error: Invalid Source IPv4 Address in launch arguments!" << std::endl;
+                return EXIT_FAILURE;
+            }
+        }
     }
 
-    if (true == has_option(launcharguments, "-T")) //Source MAC argument handling
+
+    if (true == has_option(launcharguments, "-T")) //Mapping lifetime handling
     {
         std::string lifetimestring = get_option(launcharguments, "-T");
-        mappinglifetime = stoi(lifetimestring);
-        std::cout << "Mapping lifetime is set to " << mappinglifetime << " seconds." << std::endl;
+        mappinglifetime = stol(lifetimestring);
+        std::cout << "Mapping lifetime is set to " << mappinglifetime << " seconds;" << std::endl;
     }
-    else
-    {
-        SMAC.clear();
-    }
+
 
     if (true == has_option(launcharguments, "-GW")) //Gateway IPv4 argument handling
     {

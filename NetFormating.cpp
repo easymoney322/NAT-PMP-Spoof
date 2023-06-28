@@ -146,7 +146,7 @@ uint_fast16_t portcheck(const std::string inputstring, const char* whos)
     {
         try
         {
-            portinput = std::stoi(inputstring); //Does it handle exceptions?
+            portinput = std::stol(inputstring); //Does it handle exceptions?
         }
         catch (const std::invalid_argument& ia)
         {

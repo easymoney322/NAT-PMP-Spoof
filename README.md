@@ -17,18 +17,19 @@ If you run the program behind NAT or from different subnet, the work depends on 
 
 # Usage
 * -help  - Shows this message;
-* -PH xxxxx  -  Port on the host, who we are impersonating **(REQUIRED)**;
 * -DA xxx.xxx.xxx.xxx  - IPv4 of host we will be impersonating **(REQUIRED)**;
-* -PO xxxxx  - Port on the GateWay (Optional, defaults to specified host port)" << std::endl //If not passed, will be the same as port on the host;
+* -PH xxxxx  -  Port on the host, who we are impersonating **(REQUIRED)**;
+* -PO xxxxx  - External port on the Gateway (Optional, defaults to specified host port);
 * -T xxxxxxxxx  - Time of the binding in seconds: 0 for infinite, the max value is 2^32. (Optional, defaults to 7200);
 * -TCP  - Specifiy to create TCP mapping instead of UDP (Optional);
 * -BOTH  - Specify to create both TCP and UDP mappings (Optional);
 * -GP xxxxx  - Port that NAT-PMP-capable gateway is listening on. (Optional, defaults to 5351);
 * -GW xxx.xxx.xxx.xxx  - IPv4 of the NAT-PMP Gateway (Optional, defaults to IPv4 address of the gateway on the interface);
+* -SA xxx.xxx.xxx.xxx  - IPv4 of output interfiace (Optional);
 * -DM xx:xx:xx:xx:xx:xx  - Destination (target's) MAC address (Optional, but host must be reachable with NetBios);
 * -GM xx:xx:xx:xx:xx:xx  - MAC address of Gateway in the broadcast domain, that is the next hop (Optional in single broadcast domain, but gateway must be reachable with NetBios);
 * -SM xx:xx:xx:xx:xx:xx - MAC address of output interface (Optional, if host is in the same subnet as the target);
-
+* -TS  - Sleep time in seconds for hold mode loop. (Optional, defaults to 5 sec);
 ## [Modes] (Optional)
 * -A (Default)  - Single Mapping creating mode;
 * -H  - Hold mode;

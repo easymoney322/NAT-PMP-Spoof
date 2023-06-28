@@ -16,6 +16,7 @@
 #include "GlobalVars.hpp"
 WinDev FindAppropriateDevice(const std::vector <WinDev> inputvec, const std::string DestIp);
 WinDev FindAppropriateDeviceByMac(const std::vector <WinDev> inputvec, const std::string SMAC);
+WinDev FindDeviceBySourceIP(const std::vector <WinDev> inputvec, const std::string SourceIp);
 ProtoPort GetProtoAndPortFromPayloadLayer(pcpp::PayloadLayer lspayload);
 ProtoPort GetProtoAndPortFromPacket(pcpp::Packet packet);
 void getDevices();

@@ -27,14 +27,12 @@
 
 int main(int argc, char* argv[])
 {
+    getDevices();   //Interfaces will be added to DEVS vector.
     if (EXIT_FAILURE == LaunchOptionsProcessing(argc, argv)  ) //Handling of launch arguments
     {
+        std::cerr << "Error occured when handling launch arguments" << std::endl;
         return EXIT_FAILURE;
     }
-
-
-    getDevices(); //Interfaces will be added to DEVS vector.
-    OutputInterface = FindAppropriateDevice(DEVS, DADDR); //Will return WinDev object with interface from the same network
 
 
     if (DGWAY.empty())
@@ -60,7 +58,7 @@ int main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
     }
-    std::cout << "Output IPv4 is " << OutputInterface.ipaddr << std::endl;
+    std::cout << "Output IPv4 is " << OutputInterface.ipaddr << ";" << std::endl;
 
 
     if (DMAC.empty())  //If we don't pass destination MAC, we need to get it with ARP
@@ -140,7 +138,8 @@ int main(int argc, char* argv[])
             {
                 if (SetConsoleCtrlHandler(CtrlHandler, TRUE))
                 {
-                    std::cout << std::endl << "Program has entered updating state." << std::endl << "Press CTRL + C, CTRL + Break, or close the window to exit with deletion of all created mappings." << std::endl << std::endl;
+                    std::cout << std::endl << "Program has entered updating state. Mappings will be checked every " << (int)sleeptime << " seconds." 
+                        << std::endl << "Press CTRL + C, CTRL + Break, or close the window to exit with deletion of all created mappings." << std::endl << std::endl;
                     uint8_t loopbreak;
                     while (true)
                     {
@@ -150,7 +149,7 @@ int main(int argc, char* argv[])
                             std::cout << "No mappings left to renew!" << std::endl;
                             break;
                         }
-                        std::this_thread::sleep_for(std::chrono::seconds(5));
+                        std::this_thread::sleep_for(std::chrono::seconds(sleeptime));
                     }
                 }
                 break;
@@ -207,5 +206,6 @@ int main(int argc, char* argv[])
     {
         system("PAUSE");
     }
+
     return 0;
 }

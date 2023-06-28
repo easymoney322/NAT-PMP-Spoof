@@ -4,6 +4,7 @@
 std::vector<WinDev> DEVS; //Vector, containing all our interfaces
 std::vector <pcpp::Packet> SentPackets;
 std::vector <ProlongationStruct> ProlongationList;
+std::string SAv4;
 std::string SMAC{ "" }; //Our MAC 
 std::string DMAC{ "" }; //MAC of device we will be impersonating (Optional)
 std::string GWMAC{ "" }; //Gateway MAC (Optional)
@@ -16,4 +17,5 @@ uint_fast16_t gwlistenerport = 5351; //Default port
 uint_fast16_t internalport = 1025;
 uint_fast16_t externalport = 1025;
 uint_fast32_t mappinglifetime = 7200; //Recommended to be 2 hrs (https://datatracker.ietf.org/doc/html/rfc6886)
+uint_fast64_t sleeptime = 5;
 WinDev OutputInterface;

@@ -2,11 +2,11 @@
 Spoofing NAT-PMP on Windows. There were no good NAT-PMP apps for Windows, so I made one.
 
 # What it does
-The project allows user to craft a packet and send it to Gateway for port mapping. It supposed to work with UPNP as well, and works with miniupnpd.
+The project allows user to craft a packet and send it to Gateway for port mapping. It supposed to work with UPNP as well, and works with miniupnpd. It can be helpful in cases when you have no access to the gateway settings, but need a port forwarding.
 
-User may specify any IPv4 address, as opposed to natpmpc. Since it will impersonate specified host, the host either need to be reachable with NetBIOS, or hosts's addresses need to be passed to the program.
+User may specify any IPv4 address for forwarding, as opposed to natpmpc. Since it will impersonate specified host, the host either need to be reachable with ARP, or hosts's addresses need to be passed to the program manually with command line arguments.
 
-This allows you to make a port mapping even with  secure mode enabled natpmp-d, which is helpful when you have no access to the host for who you want to create the port mapping.
+This allows you to make a port mapping even with secure mode enabled natpmp-d, which is helpful when you have no access to the host for who you want to create the port mapping. 
 
 If you run the program behind NAT or from different subnet, the work depends on your gateway device. Please test it with low mapping lifetime first, as you might be unable to remove the mapping, as there is no such functionality yet.
 
@@ -53,9 +53,11 @@ Both commands will create mappings that will last 7200 seconds (2 hours). Please
 
 Both commands requrie additional data that will be fetched with mechanisms such as ARP-requests or win32 API. 
 If, for some reason, the required data cannot be fetched, user must provide it manually by launch arguments:
-`NAT-PMP-Spoofer.exe -DA 192.168.1.228  -DM b1:6b:00:b5:ba:be  -PH 80 -PO 8080  -TCP  -GW 192.168.1.1  -GM c1:5c:0d:06:1e  -SM ba:be:de:fe:c8:ed -T 0`
+`NAT-PMP-Spoofer.exe -DA 192.168.1.228  -DM b1:6b:00:b5:ba:be  -PH 80 -PO 8080  -TCP  -GW 192.168.1.1  -GM c1:5c:00:0d:06:1e  -SM ba:be:de:fe:c8:ed -T 0`
 
 Providing additional data with launch arguments increases speed of the programm, while also reducing network presence.
+
+**More examples (incl. multiple subnets) with network diagrams can be found [here](https://github.com/easymoney322/NAT-PMP-Spoof/wiki/Examples-with-network-diagrams)**
 
 ## Creating and auto-renewing mappings
 Mappings will be renewed halfway through, as RFC proposes. Due to busy waiting, it will load the CPU.
@@ -99,7 +101,7 @@ Both UPNP and NAT-PMP aren't designed to work under such conditions. You can sti
 - [ ] Viewing mappings;
 - [X] Auto-prolongation for the hold mode;
 - [ ] Multi-threading for the hold mode;
-- [ ] Topology images for examples;
+- [X] Topology images for examples;
 - [ ] Endianness independent code for ARM-based Windows systems;
 - [ ] Configuration via files;
 - [ ] Static builds;

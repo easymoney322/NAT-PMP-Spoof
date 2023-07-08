@@ -45,12 +45,12 @@ extern struct ProtoPort
     uint_fast32_t maptime{ 1 };
     std::string UpdateText{ "" };
 };
+
 extern struct ProlongationStruct 
 {
     pcpp::Packet Packet;
     std::chrono::time_point <std::chrono::system_clock> chronotimepoint;
     ProtoPort ProtocolAndPort;
-    uint_fast64_t PacketID{ 0 };
 };
 
 extern std::vector <ProlongationStruct> ProlongationList;

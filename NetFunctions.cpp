@@ -75,6 +75,7 @@ uint_fast8_t sendspoof(std::string lsDMAC, std::string lsGWMAC, std::string lsDA
 
 void getDevices()
 {
+#ifdef _WIN32
     PIP_ADAPTER_INFO AdapterInfo;
     DWORD dwBufLen = sizeof(IP_ADAPTER_INFO);
 
@@ -94,10 +95,12 @@ void getDevices()
             }
         }
 
-        if (GetAdaptersInfo(AdapterInfo, &dwBufLen) == NO_ERROR) {
+        if (GetAdaptersInfo(AdapterInfo, &dwBufLen) == NO_ERROR) 
+        {
             // Contains pointer to current adapter info
             PIP_ADAPTER_INFO pAdapterInfo = AdapterInfo;
-            do {
+            do 
+            {
                 std::vector<uint_fast8_t> hwaddr;
                 if ('0' != pAdapterInfo->IpAddressList.IpAddress.String[0])
                 {
@@ -129,68 +132,73 @@ void getDevices()
 
                 }
                 pAdapterInfo = pAdapterInfo->Next;
-            } while (pAdapterInfo);
+            }
+            while (pAdapterInfo);
         }
     }
     free(AdapterInfo);
+#endif
+
 }
 
 
 void sendarp(const WinDev localstruct, const std::string destinationv4, std::vector <uint_fast8_t>& inputvec) //[IN] WinDev, [IN] std::string IPV4, [OUT] std::vector uint_fast8_t
 {
-    IPAddr SourceADR = inet_addr(localstruct.ipaddr.c_str());
-    IPAddr DestIp = inet_addr(destinationv4.c_str());
-    ULONG addrlen = localstruct.macaddrvec.size();
-    ULONG MacAddr[2];
-    DWORD dwRetVal = SendARP(DestIp, SourceADR, &MacAddr, &addrlen);
-    BYTE* bPhysAddr;
-    if (dwRetVal == NO_ERROR)
-    {
-        bPhysAddr = (BYTE*)&MacAddr;
-        if (addrlen)
+    #ifdef _WIN32
+        IPAddr SourceADR = inet_addr(localstruct.ipaddr.c_str());
+        IPAddr DestIp = inet_addr(destinationv4.c_str());
+        ULONG addrlen = localstruct.macaddrvec.size();
+        ULONG MacAddr[2];
+        DWORD dwRetVal = SendARP(DestIp, SourceADR, &MacAddr, &addrlen);
+        BYTE* bPhysAddr;
+        if (dwRetVal == NO_ERROR)
         {
-            std::cout << "Made an ARP request for " << destinationv4 << ", MAC address in the response is ";
-            unsigned int id = ((int)addrlen - 1);
-            for (unsigned int i = 0; i < id; i++)
+            bPhysAddr = (BYTE*)&MacAddr;
+            if (addrlen)
             {
-                inputvec.push_back((uint_fast8_t)bPhysAddr[i]);
-                std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)bPhysAddr[i] << ":";
+                std::cout << "Made an ARP request for " << destinationv4 << ", MAC address in the response is ";
+                unsigned int id = ((int)addrlen - 1);
+                for (unsigned int i = 0; i < id; i++)
+                {
+                    inputvec.push_back((uint_fast8_t)bPhysAddr[i]);
+                    std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)bPhysAddr[i] << ":";
+                }
+                inputvec.push_back((uint_fast8_t)bPhysAddr[id]);
+                std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)bPhysAddr[id] <<  ";" << std::endl;
             }
-            inputvec.push_back((uint_fast8_t)bPhysAddr[id]);
-            std::cout << std::setfill('0') << std::setw(2) << std::hex << (int)bPhysAddr[id] <<  ";" << std::endl;
+            else
+                std::cerr << "Warning: SendArp completed successfully, but returned length=0" << std::endl;
         }
         else
-            printf("Warning: SendArp completed successfully, but returned length=0\n");
-    }
-    else
-    {
-        printf("Error: SendArp failed with error: %d", dwRetVal);
-        inputvec.clear();
-        switch (dwRetVal)
         {
-        case ERROR_GEN_FAILURE:
-            printf(" (ERROR_GEN_FAILURE)\n");
-            break;
-        case ERROR_INVALID_PARAMETER:
-            printf(" (ERROR_INVALID_PARAMETER)\n");
-            break;
-        case ERROR_INVALID_USER_BUFFER:
-            printf(" (ERROR_INVALID_USER_BUFFER)\n");
-            break;
-        case ERROR_BAD_NET_NAME:
-            printf(" (ERROR_GEN_FAILURE)\n");
-            break;
-        case ERROR_BUFFER_OVERFLOW:
-            printf(" (ERROR_BUFFER_OVERFLOW)\n");
-            break;
-        case ERROR_NOT_FOUND:
-            printf(" (ERROR_NOT_FOUND)\n");
-            break;
-        default:
-            printf("\n");
-            break;
+            printf("Error: SendArp failed with error: %d", dwRetVal);
+            inputvec.clear();
+            switch (dwRetVal)
+            {
+                case ERROR_GEN_FAILURE:
+                    printf(" (ERROR_GEN_FAILURE)\n");
+                    break;
+                case ERROR_INVALID_PARAMETER:
+                    printf(" (ERROR_INVALID_PARAMETER)\n");
+                    break;
+                case ERROR_INVALID_USER_BUFFER:
+                    printf(" (ERROR_INVALID_USER_BUFFER)\n");
+                    break;
+                case ERROR_BAD_NET_NAME:
+                    printf(" (ERROR_GEN_FAILURE)\n");
+                    break;
+                case ERROR_BUFFER_OVERFLOW:
+                    printf(" (ERROR_BUFFER_OVERFLOW)\n");
+                    break;
+                case ERROR_NOT_FOUND:
+                    printf(" (ERROR_NOT_FOUND)\n");
+                    break;
+                default:
+                    printf("\n");
+                    break;
+            }
         }
-    }
+    #endif //End ifdef win32
 }
 
 
@@ -205,7 +213,7 @@ WinDev FindDeviceBySourceIP(const std::vector <WinDev> inputvec, const std::stri
             return inputvec[i];
         }
     }
-    std::cout << "Wasn't able to find output device from the same network." << std::endl;
+    std::cerr << "Wasn't able to find output device from the same network." << std::endl;
     return { "", "", {NULL},0,0,0,0,0 }; //We probably should use default GW if interface wasn't found
 }
 
@@ -221,7 +229,7 @@ WinDev FindAppropriateDevice(const std::vector <WinDev> inputvec, const std::str
             return inputvec[i];
         }
     }
-    std::cout << "Wasn't able to find output device from the same network." << std::endl;
+    std::cerr << "Wasn't able to find output device from the same network." << std::endl;
     return { "", "", {NULL},0,0,0,0,0 }; //We probably should use default GW if interface wasn't found
 }
 

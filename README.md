@@ -91,8 +91,8 @@ There is no feature for checking right now, but you can use UPnP Wizard (may not
 You can check binary file with Virus Total (http://virustotal.com) or manually review the code and compile it. There is no RCE, and the only shadow thing in an entire project - is spoofing.
 
 # Libraries in use
-* Win32, iphlpapi ;
-* PcapPlusPlus and all of it's dependencies https://github.com/seladb/PcapPlusPlus ;
+* Win32 (iphlpapi);
+* PcapPlusPlus and all of it's dependencies -  https://github.com/seladb/PcapPlusPlus
 
 # Compatibility with multihomed networks
 Both UPNP and NAT-PMP aren't designed to work under such conditions. You can still manually specify IP addresses of gateways and create mapping on each gateway, however.
